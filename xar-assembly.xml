@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<package xmlns="http://expath.org/ns/pkg" name="${package-name}" abbrev="${package-abbrev}" version="${project.version}"
+    spec="1.0">
+    <title>${package-title}</title>
+    <author id="evolvedbinary">Evolved Binary</author>
+    <website>${project.url}</website>
+    <license>GNU Affero General Public License, version 3</license>
+    <copyright>true</copyright>
+
+    <type>library</type>
+
+    <status>stable</status>
+
+    <tag>${project.artifactId}</tag>
+    <tag>application</tag>
+    <category id="api">API</category>
+
+    <dependency processor="http://exist-db.org" semver-min="${exist.version}" />
+
+    <!-- Collection inside /db/apps where xar-resources will be copied to -->
+    <target>${package-abbrev}</target>
+
+    <prepare>pre-install.xq</prepare>
+    <finish>post-install.xq</finish>
+
+    <!-- includes everything in src/main/xar-resources, README.md, and LICENSE -->
+    <fileSets>
+        <fileSet>
+            <directory>${basedir}</directory>
+            <includes>
+                <include>README.md</include>
+                <include>LICENSE</include>
+            </includes>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/src/main/xar-resources</directory>
+        </fileSet>
+    </fileSets>
+
+</package>
