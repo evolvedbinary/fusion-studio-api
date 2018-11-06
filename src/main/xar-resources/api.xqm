@@ -52,7 +52,7 @@ declare
     %rest:GET
     %rest:path("/pebble/document")
     %rest:query-param("uri", "{$uri}", "/")
-function api:document($uri) {
+function api:get-document($uri) {
     let $doc := doc:get($uri)
     return
         if (not(empty($doc))) then
@@ -80,7 +80,7 @@ declare
     %rest:path("/pebble/document")
     %rest:header-param("Content-Type", "{$media-type}", "application/octet-stream")
     %rest:query-param("uri", "{$uri}", "/")
-function api:document($uri, $media-type, $body) {
+function api:put-document($uri, $media-type, $body) {
     if (fn:starts-with($uri, "/db")) then
         try {
             let $doc-uri := doc:put($uri, $media-type, $body)
@@ -117,7 +117,7 @@ declare
     %rest:DELETE
     %rest:path("/pebble/document")
     %rest:query-param("uri", "{$uri}")
-function api:document($uri) {
+function api:delete-document($uri) {
     if (not(empty($uri)) and fn:starts-with($uri, "/db")) then
         try {
             (
