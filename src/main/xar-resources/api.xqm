@@ -12,6 +12,8 @@ import module namespace doc = "http://evolvedbinary.com/ns/pebble/api/document" 
 import module namespace exp = "http://evolvedbinary.com/ns/pebble/api/explorer" at "modules/explorer.xqm";
 import module namespace jx = "http://joewiz.org/ns/xquery/json-xml" at "modules/json-xml.xqm";
 import module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error" at "modules/error.xqm";
+import module namespace prxq = "http://evolvedbinary.com/ns/pebble/api/restxq" at "modules/restxq.xqm";
+
 
 (: TODO(AR) -
     1. How to properly deal with CORS - see api:cors-allow
@@ -109,6 +111,17 @@ function api:document($uri, $media-type, $body) {
             },
             ()
         )
+};
+
+declare
+    %rest:GET
+    %rest:path("/pebble/restxq")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:restxq() {
+    api:cors-allow(
+        prxq:list-by-uri()
+    )
 };
 
 declare
