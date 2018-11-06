@@ -114,6 +114,41 @@ function api:document($uri, $media-type, $body) {
 };
 
 declare
+    %rest:DELETE
+    %rest:path("/pebble/document")
+    %rest:query-param("uri", "{$uri}")
+function api:document($uri) {
+    if (not(empty($uri)) and fn:starts-with($uri, "/db")) then
+        try {
+            (
+                doc:delete($uri),
+                api:cors-allow(
+                    map {
+                        "code": 204
+                    },
+                    ()
+                )
+            )
+        } catch perr:PD001 {
+            api:cors-allow(
+                    map {
+                        "code": 401,
+                        "reason": $err:description
+                    },
+                    ()
+                )
+        }
+    else
+        api:cors-allow(
+            map {
+                "status": 400,
+                "reason": "Document URI must start /db"
+            },
+            ()
+        )
+};
+
+declare
     %rest:GET
     %rest:path("/pebble/restxq")
     %rest:produces("application/json")

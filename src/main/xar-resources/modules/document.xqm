@@ -46,3 +46,26 @@ declare function doc:put($uri as xs:string, $media-type as xs:string, $body) as 
         else
             perr:error($perr:PD001, $uri)
 };
+
+declare function doc:delete($uri as xs:string) as empty-sequence() {
+    if (xmldb:collection-available($uri))
+    then
+        let $parent-collection-uri := ut:parent-path($uri)
+        return
+            if (sm:has-access(xs:anyURI($uri), "rwx") and sm:has-access(xs:anyURI($parent-collection-uri), "wx"))
+            then
+                (: delete collection :)
+                xmldb:remove($uri)
+            else
+                perr:error($perr:PD001, $uri)
+    else
+        let $collection-uri := ut:parent-path($uri)
+        let $doc-name := ut:last-path-component($uri)
+        return
+            if (sm:has-access(xs:anyURI($uri), "rwx") and sm:has-access(xs:anyURI($collection-uri), "wx"))
+            then
+                (: delete document :)
+                xmldb:remove($collection-uri, $doc-name)
+            else
+                perr:error($perr:PD001, $uri)
+};
