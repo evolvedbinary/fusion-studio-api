@@ -2,6 +2,7 @@ xquery version "3.1";
 
 module namespace api = "http://evolvedbinary.com/ns/pebble/api";
 
+declare namespace err = "http://www.w3.org/2005/xqt-errors";
 declare namespace rest = "http://exquery.org/ns/restxq";
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace http = "http://expath.org/ns/http-client";
@@ -10,6 +11,7 @@ import module namespace config = "http://evolvedbinary.com/ns/pebble/api/config"
 import module namespace doc = "http://evolvedbinary.com/ns/pebble/api/document" at "modules/document.xqm";
 import module namespace exp = "http://evolvedbinary.com/ns/pebble/api/explorer" at "modules/explorer.xqm";
 import module namespace jx = "http://joewiz.org/ns/xquery/json-xml" at "modules/json-xml.xqm";
+import module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error" at "modules/error.xqm";
 
 (: TODO(AR) -
     1. How to properly deal with CORS - see api:cors-allow
@@ -54,42 +56,97 @@ function api:document($uri) {
         if (not(empty($doc))) then
             api:cors-allow(
                 map {
-                    "mediaType": $doc?mediaType
+                    "binary": $doc?binaryDoc, 
+                    "headers": map {
+                        "Content-Type": $doc?mediaType
+                    }
                 },
-                $doc?binaryDoc,
                 $doc?content
             )
         else
-            <rest:response>
-                <http:response status="404" reason="No such document"/>
-            </rest:response>
+            api:cors-allow(
+                map {
+                    "status": 404,
+                    "reason": "No such document"
+                },
+                ()
+            )
+};
+
+declare
+    %rest:PUT("{$body}")
+    %rest:path("/pebble/document")
+    %rest:header-param("Content-Type", "{$media-type}", "application/octet-stream")
+    %rest:query-param("uri", "{$uri}", "/")
+function api:document($uri, $media-type, $body) {
+    if (fn:starts-with($uri, "/db")) then
+        try {
+            let $doc-uri := doc:put($uri, $media-type, $body)
+            return
+                api:cors-allow(
+                    map {
+                        "code": 201,
+                        "headers": map {
+                            "Content-Location": $doc-uri
+                        }
+                    },
+                    ()
+                )
+        } catch perr:PD001 {
+            api:cors-allow(
+                    map {
+                        "code": 401,
+                        "reason": $err:description
+                    },
+                    ()
+                )
+        }
+    else
+        api:cors-allow(
+            map {
+                "status": 400,
+                "reason": "Document URI must start /db"
+            },
+            ()
+        )
 };
 
 declare
     %private
 function api:cors-allow($response) {
-    api:cors-allow((), false(), $response)
+    api:cors-allow((), $response)
 };
 
 declare
     %private
-function api:cors-allow($headers as map(xs:string, xs:string)?, $is-binary as xs:boolean, $response) {
+function api:cors-allow($response-ctl as map(xs:string, item())?, $response) {
     (
         <rest:response>
             {
-            if ($is-binary)
-            then
-                <output:serialization-parameters>
-                    <output:method value="binary"/>
-                </output:serialization-parameters>
-            else
-                ()
+            let $is-binary :=
+                if (not(empty($response-ctl?binary)))
+                then
+                    $response-ctl?binary
+                else
+                    false()
+            return
+                if ($is-binary)
+                then
+                    <output:serialization-parameters>
+                        <output:method value="binary"/>
+                    </output:serialization-parameters>
+                else
+                    ()
             }
             <http:response>
+                {
+                    $response-ctl?code ! attribute status { $response-ctl?code },
+                    $response-ctl?reason ! attribute reason { $response-ctl?reason }
+                }
                 <http:header name="Access-Control-Allow-Origin" value="*"/>
                 {
-                    if (not(empty($headers))) then
-                        map:for-each($headers, function($k,$v) {
+                    if (not(empty($response-ctl?headers))) then
+                        map:for-each($response-ctl?headers, function($k,$v) {
                             <http:header name="{$k}" value="{$v}"/>
                         })
                     else ()
