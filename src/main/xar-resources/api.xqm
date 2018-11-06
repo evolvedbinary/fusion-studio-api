@@ -49,6 +49,22 @@ function api:explorer($uri) {
 };
 
 declare
+    %rest:OPTIONS
+    %rest:produces("text/plain")
+function api:explorerOptions($uri) {
+    (
+        <rest:response>
+            <http:response>
+                <http:header name="Access-Control-Allow-Origin" value="*"/>
+                <http:header name="Access-Control-Max-Age" value="3628800"/>
+                <http:header name="Access-Control-Allow-Methods" value="PUT, DELETE, GET, OPTIONS"/>
+                <http:header name="Access-Control-Allow-Headers" value="Authorization"/>
+            </http:response>
+        </rest:response>
+    )
+};
+
+declare
     %rest:GET
     %rest:path("/pebble/document")
     %rest:query-param("uri", "{$uri}", "/")
