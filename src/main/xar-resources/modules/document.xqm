@@ -48,7 +48,7 @@ declare function doc:put($uri as xs:string, $media-type as xs:string, $body) as 
 };
 
 declare function doc:delete($uri as xs:string) as xs:boolean {
-    if (fn:doc-available($uri)) then
+    if (ut:doc-available($uri)) then
         let $collection-uri := ut:parent-path($uri)
         let $doc-name := ut:last-path-component($uri)
         return
