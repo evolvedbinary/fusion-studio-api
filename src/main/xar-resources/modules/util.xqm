@@ -2,6 +2,7 @@ xquery version "3.1";
 
 module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util";
 
+import module namespace sm = "http://exist-db.org/xquery/securitymanager";
 import module namespace util = "http://exist-db.org/xquery/util";
 import module namespace xmldb = "http://exist-db.org/xquery/xmldb";
 
@@ -81,4 +82,20 @@ function ut:_mkcol($current as xs:string, $remaining as xs:string*) as xs:string
 
 declare function ut:doc-available($uri as xs:string ) as xs:boolean {
     fn:doc-available($uri) or util:binary-doc-available($uri)
+};
+
+declare function ut:is-dba() as xs:boolean {
+    sm:is-dba(
+        sm:id()/sm:id/(sm:effective/sm:username|sm:real/sm:username)[1]
+    )
+};
+
+declare function ut:is-current-user($username) as xs:boolean {
+    sm:id()/sm:id/(sm:effective|sm:real)/sm:username = $username
+};
+
+declare function ut:is-current-user-member($groupname) as xs:boolean {
+    let $username := sm:id()/sm:id/(sm:effective|sm:real)/sm:username
+    return
+        (sm:get-group-managers($groupname), sm:get-group-members($groupname)) = $username
 };

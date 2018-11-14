@@ -6,6 +6,7 @@ declare namespace err = "http://www.w3.org/2005/xqt-errors";
 declare namespace rest = "http://exquery.org/ns/restxq";
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace http = "http://expath.org/ns/http-client";
+import module namespace sm = "http://exist-db.org/xquery/securitymanager";
 
 import module namespace config = "http://evolvedbinary.com/ns/pebble/api/config" at "modules/config.xqm";
 import module namespace col = "http://evolvedbinary.com/ns/pebble/api/collection" at "modules/collection.xqm";
@@ -15,6 +16,8 @@ import module namespace hsc = "https://tools.ietf.org/html/rfc2616#section-10" a
 import module namespace jx = "http://joewiz.org/ns/xquery/json-xml" at "modules/json-xml.xqm";
 import module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error" at "modules/error.xqm";
 import module namespace prxq = "http://evolvedbinary.com/ns/pebble/api/restxq" at "modules/restxq.xqm";
+import module namespace sec = "http://evolvedbinary.com/ns/pebble/api/security" at "modules/security.xqm";
+import module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util" at "modules/util.xqm";
 
 
 (: TODO(AR) -
@@ -256,6 +259,176 @@ function api:delete-collection($uri) {
             ]
         }
     })
+};
+
+declare
+    %rest:GET
+    %rest:path("/pebble/user")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:list-users() {
+    if (ut:is-dba())
+    then
+        api:cors-allow(
+            sec:list-users()
+        )
+    else
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "DBA account is required to access user accounts"
+            },
+            ()
+        )
+};
+
+declare
+    %rest:GET
+    %rest:path("/pebble/user/{$username}")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:get-user($username) {
+    if (ut:is-dba() or ut:is-current-user($username))
+    then
+        let $user := sec:get-user($username)
+        return
+            if (not(empty($user)))
+            then
+                api:cors-allow($user)
+            else
+                api:cors-allow(
+                    map {
+                        "code": $hsc:not-found,
+                        "reason": "User account does not exist"
+                    },
+                    ()
+                )
+    else
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "DBA account is required to access other user's account"
+            },
+            ()
+        )
+};
+
+declare
+    %rest:DELETE
+    %rest:path("/pebble/user/{$username}")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:delete-user($username) {
+    if (ut:is-current-user($username))
+    then
+        api:cors-allow(
+            map {
+                "code": $hsc:conflict,
+                "reason": "You cannot delete your own account"
+            },
+            ()
+        )
+    else if (ut:is-dba())
+    then
+        api:cors-allow(
+            map {
+                "code": if (sec:delete-user($username)) then $hsc:no-content else $hsc:not-found
+            },
+            ()
+        )
+    else
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "DBA account is required to delete other user's account"
+            },
+            ()
+        )
+};
+
+declare
+    %rest:GET
+    %rest:path("/pebble/group")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:list-groups() {
+    if (ut:is-dba())
+    then
+        api:cors-allow(
+            sec:list-groups()
+        )
+    else
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "DBA account is required to access user groups"
+            },
+            ()
+        )
+};
+
+declare
+    %rest:GET
+    %rest:path("/pebble/group/{$groupname}")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:get-group($groupname) {
+    if (ut:is-dba() or ut:is-current-user-member($groupname))
+    then
+        let $group := sec:get-group($groupname)
+        return
+            if (not(empty($group)))
+            then
+                api:cors-allow($group)
+            else
+                api:cors-allow(
+                    map {
+                        "code": $hsc:not-found,
+                        "reason": "Group does not exist"
+                    },
+                    ()
+                )
+    else
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "DBA account is required to access other group's details"
+            },
+            ()
+        )
+};
+
+declare
+    %rest:DELETE
+    %rest:path("/pebble/group/{$groupname}")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:delete-group($groupname) {
+    if (ut:is-current-user-member($groupname))
+    then
+        api:cors-allow(
+            map {
+                "code": $hsc:conflict,
+                "reason": "You cannot delete a group that you are a member of"
+            },
+            ()
+        )
+    else if (ut:is-dba())
+    then
+        api:cors-allow(
+            map {
+                "code": if (sec:delete-group($groupname)) then $hsc:no-content else $hsc:not-found
+            },
+            ()
+        )
+    else
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "DBA account is required to delete group"
+            },
+            ()
+        )
 };
 
 declare
