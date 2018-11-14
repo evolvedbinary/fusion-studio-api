@@ -7,6 +7,16 @@ declare variable $perr:PD001 := map {
     "description": "Permission Denied"
 };
 
+declare variable $perr:PD002 := map {
+    "code": fn:QName("http://evolvedbinary.com/ns/pebble/api/error", "PD002"),
+    "description": "Source Collection URI, does not exist"
+};
+
+declare variable $perr:PD003 := map {
+    "code": fn:QName("http://evolvedbinary.com/ns/pebble/api/error", "PD003"),
+    "description": "Source Document URI, does not exist"
+};
+
 declare function perr:error($error as map(xs:string, item())) {
     perr:error($error, (), ())
 };
