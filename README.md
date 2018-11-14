@@ -1,6 +1,8 @@
 # Pebble API
 Server Side API for [Pebble](https://github.com/evolvedbinary/pebble) written in RESTXQ and XQuery.
 
+API documentation is here: https://app.swaggerhub.com/apis/evolvedbinary/pebble-api/1.0.0
+
 ## Build Instructions
 
 Requirements:
