@@ -314,6 +314,43 @@ function api:get-user($username) {
 };
 
 declare
+    %rest:PUT("{$body}")
+    %rest:path("/pebble/user/{$username}")
+    %rest:consumes("application/json")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:put-user($username, $body) {
+    if (empty($body))
+    then
+        api:cors-allow(
+            map {
+                "code": $hsc:bad-request,
+                "reason": "Missing request body"
+            },
+            ()
+        )
+    else if (ut:is-dba() or ut:is-current-user($username))
+    then
+        api:cors-allow(
+            let $json-txt := util:base64-decode($body)
+            let $user-data := fn:parse-json($json-txt)
+            return
+                map {
+                    "code": if (sec:put-user($username, $user-data)) then $hsc:no-content else $hsc:bad-request
+                },
+                ()
+        )
+    else
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "DBA account is required to Create/Modify another user account"
+            },
+            ()
+        )
+};
+
+declare
     %rest:DELETE
     %rest:path("/pebble/user/{$username}")
     %rest:produces("application/json")
