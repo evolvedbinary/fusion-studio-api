@@ -436,6 +436,43 @@ function api:get-group($groupname) {
 };
 
 declare
+    %rest:PUT("{$body}")
+    %rest:path("/pebble/group/{$groupname}")
+    %rest:consumes("application/json")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:put-group($groupname, $body) {
+    if (empty($body))
+    then
+        api:cors-allow(
+            map {
+                "code": $hsc:bad-request,
+                "reason": "Missing request body"
+            },
+            ()
+        )
+    else if (ut:is-dba() or ut:is-current-user-member($groupname))
+    then
+        api:cors-allow(
+            let $json-txt := util:base64-decode($body)
+            let $group-data := fn:parse-json($json-txt)
+            return
+                map {
+                    "code": if (sec:put-group($groupname, $group-data)) then $hsc:no-content else $hsc:bad-request
+                },
+                ()
+        )
+    else
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "DBA account is required to Create/Modify another user group"
+            },
+            ()
+        )
+};
+
+declare
     %rest:DELETE
     %rest:path("/pebble/group/{$groupname}")
     %rest:produces("application/json")

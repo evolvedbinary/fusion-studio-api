@@ -90,8 +90,28 @@ declare function ut:is-dba() as xs:boolean {
     )
 };
 
-declare function ut:is-current-user($username) as xs:boolean {
-    sm:id()/sm:id/(sm:effective|sm:real)/sm:username = $username
+(:~
+ : Gets the current user
+ : 
+ : @return a sequence of two strings if setUid is
+ : in effect, e.g. (effective-user-name, real-user-name),
+ : or just the single string (real-user-name)
+ :)
+declare function ut:current-user() as xs:string+ {
+    sm:id()/sm:id/(sm:effective|sm:real)/sm:username
+};
+
+(:~
+ : Determines if the user is the user currently executing
+ : this query.
+ : 
+ : @param $username the username of a user
+ : 
+ : @return true if the $username matches the user currently executing
+ :     the query.
+ :)
+declare function ut:is-current-user($username as xs:string) as xs:boolean {
+    ut:current-user() = $username
 };
 
 declare function ut:is-current-user-member($groupname) as xs:boolean {

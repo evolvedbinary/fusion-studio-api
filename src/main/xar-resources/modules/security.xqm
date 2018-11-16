@@ -175,6 +175,85 @@ declare function sec:get-group($groupname as xs:string) as map(xs:string, item()
     else ()
 };
 
+declare function sec:put-group($groupname as xs:string, $group-data as map(xs:string, item())) as xs:boolean {
+    if (sm:group-exists($groupname)) 
+    then
+        sec:update-group($groupname, $group-data)
+    else
+        sec:create-group($groupname, $group-data)
+        
+};
+
+declare
+    %private
+function sec:update-group($groupname, $group-data as map(xs:string, item())) as xs:boolean {
+    if (not(empty($group-data?groupName) and $groupname eq $group-data?groupName))
+    then
+        (
+            (: change managers? :)
+            if (not(empty($group-data?managers)))
+            then
+                (
+                    (: remove from existing group managers :)
+                    sm:get-group-managers($groupname) ! sm:remove-group-member($groupname, .),
+                    (: add to new manangers :)
+                    array:flatten($group-data?managers) ! sm:add-group-manager($groupname, .)
+                )
+            else (),
+            
+            (: change metadata? :)
+            if (not(empty($group-data?metadata)))
+            then
+                (
+                    sec:clear-group-metadata($groupname),
+                    let $_ := array:for-each($group-data?metadata, function($attribute as map(xs:string, xs:string)) {
+                        sm:set-account-metadata($groupname, $attribute?key, $attribute?value)
+                    })
+                    return ()
+                    ,
+                    true()
+                )
+            else (),
+            
+            true() (: success :)
+        )
+
+    else
+        false()
+};
+
+declare
+    %private
+function sec:clear-group-metadata($groupname as xs:string) as empty-sequence() {
+    for $key in sm:get-group-metadata-keys()
+    return
+        sm:set-group-metadata($groupname, $key, "")    (: TODO - how to actually delete instead of setting to the empty string? :)
+};
+
+declare
+    %private
+function sec:create-group($groupname as xs:string, $group-data as map(xs:string, item())) as xs:boolean {
+    if (not(empty($group-data?groupName)) and ($groupname eq $group-data?groupName))
+    then
+        let $current-user := sm:id()/sm:id/sm:real/sm:username
+        let $_ := sm:create-group($groupname, ($current-user, array:flatten($group-data?managers)), "")
+        return
+            if (not(empty($group-data?metadata)))
+            then
+                (
+                    let $_ := array:for-each($group-data?metadata, function($attribute as map(xs:string, xs:string)) {
+                        sm:set-account-metadata($groupname, $attribute?key, $attribute?value)
+                    })
+                    return ()
+                    ,
+                    true()
+                )
+            else
+                true()
+    else
+        false()
+};
+
 declare function sec:delete-group($groupname as xs:string) {
     if (sm:list-groups() = $groupname)
     then
