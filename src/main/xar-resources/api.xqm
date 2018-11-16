@@ -13,6 +13,7 @@ import module namespace col = "http://evolvedbinary.com/ns/pebble/api/collection
 import module namespace doc = "http://evolvedbinary.com/ns/pebble/api/document" at "modules/document.xqm";
 import module namespace exp = "http://evolvedbinary.com/ns/pebble/api/explorer" at "modules/explorer.xqm";
 import module namespace hsc = "https://tools.ietf.org/html/rfc2616#section-10" at "modules/http-status-codes.xqm";
+import module namespace idx = "http://evolvedbinary.com/ns/pebble/api/index" at "modules/index.xqm";
 import module namespace jx = "http://joewiz.org/ns/xquery/json-xml" at "modules/json-xml.xqm";
 import module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error" at "modules/error.xqm";
 import module namespace prxq = "http://evolvedbinary.com/ns/pebble/api/restxq" at "modules/restxq.xqm";
@@ -503,6 +504,33 @@ function api:delete-group($groupname) {
             },
             ()
         )
+};
+
+declare
+    %rest:GET
+    %rest:path("/pebble/index")
+    %rest:query-param("uri", "{$uri}")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:get-index($uri) {
+        if (empty($uri))
+        then
+            api:cors-allow(
+                idx:list-explicit()
+            )
+        else
+            let $index := idx:get-implicit($uri)
+            return
+                if (not(empty($index)))
+                then
+                    api:cors-allow($index)
+                else
+                    api:cors-allow(
+                        map {
+                            "code": $hsc:not-found
+                        },
+                        ()
+                    )
 };
 
 declare

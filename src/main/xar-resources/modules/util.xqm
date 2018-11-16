@@ -15,10 +15,15 @@ import module namespace xmldb = "http://exist-db.org/xquery/xmldb";
  :
  : @param path the path to get the parent path from
  :
- : @return the parent path
+ : @return the parent path, or the empty sequence if there is no parent
  :)
-declare function ut:parent-path($path as xs:string) as xs:string {
-    fn:replace($path, "(.*)/.*", "$1")
+declare function ut:parent-path($path as xs:string) as xs:string? {
+    let $parent := fn:replace($path, "(.*)/.*", "$1")
+    return
+        if(fn:string-length($parent) gt 0)
+        then
+            $parent
+        else ()
 };
 
 (:~
@@ -148,4 +153,20 @@ declare function ut:is-current-user-member($groupname) as xs:boolean {
     let $username := sm:id()/sm:id/(sm:effective|sm:real)/sm:username
     return
         (sm:get-group-managers($groupname), sm:get-group-members($groupname)) = $username
+};
+
+declare function ut:filter-map($map as map(*), $f as function(item(), item()*) as map(*)) as map(*)? {
+    map:merge(
+        map:for-each($map, $f)
+    )
+};
+
+declare function ut:filter-entry-value-empty-sequence($k as item(), $v as item()*) as map(item(), item()*)? {
+    
+    if (not(empty($v)))
+    then
+        map {
+            $k: $v
+        }
+    else ()
 };
