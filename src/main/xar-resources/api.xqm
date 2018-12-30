@@ -553,7 +553,7 @@ function api:explorerOptions() {
             <http:header name="Access-Control-Allow-Origin" value="*"/>
             <http:header name="Access-Control-Max-Age" value="3628800"/>
             <http:header name="Access-Control-Allow-Methods" value="PUT, DELETE, GET, OPTIONS"/>
-            <http:header name="Access-Control-Allow-Headers" value="Authorization"/>
+            <http:header name="Access-Control-Allow-Headers" value="Authorization, Content-Type"/>
         </http:response>
     </rest:response>
 };
