@@ -47,6 +47,23 @@ declare function doc:put($uri as xs:string, $media-type as xs:string, $body) as 
             perr:error($perr:PD001, $uri)
 };
 
+declare function doc:put-multi($collection-uri as xs:string, $docs as map(xs:string, item())*) as xs:string* {
+    for $doc in $docs
+    let $filename := $doc?filename
+    let $folder-path := ut:parent-path($filename)
+    let $doc-name := ut:last-path-component($filename)
+    let $collection-uri := if ($folder-path eq $doc-name) then $collection-uri else $collection-uri || "/" || $folder-path
+    (: sort into path descending order... optimisation for the collection creation steps :)
+    order by fn:tokenize($filename, "/") descending
+    return
+        let $collection-uri := ut:mkcol($collection-uri)
+        return
+            if (sm:has-access(xs:anyURI($collection-uri), "w")) then
+                xmldb:store($collection-uri, $doc-name, $doc?body)
+            else
+                perr:error($perr:PD001, $collection-uri || "/" || $doc-name)
+};
+
 declare function doc:delete($uri as xs:string) as xs:boolean {
     if (ut:doc-available($uri)) then
         let $collection-uri := ut:parent-path($uri)

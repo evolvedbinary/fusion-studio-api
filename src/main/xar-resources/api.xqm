@@ -15,6 +15,7 @@ import module namespace exp = "http://evolvedbinary.com/ns/pebble/api/explorer" 
 import module namespace hsc = "https://tools.ietf.org/html/rfc2616#section-10" at "modules/http-status-codes.xqm";
 import module namespace idx = "http://evolvedbinary.com/ns/pebble/api/index" at "modules/index.xqm";
 import module namespace jx = "http://joewiz.org/ns/xquery/json-xml" at "modules/json-xml.xqm";
+import module namespace mul = "http://evolvedbinary.com/ns/pebble/api/multipart" at "modules/multipart.xqm";
 import module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error" at "modules/error.xqm";
 import module namespace prxq = "http://evolvedbinary.com/ns/pebble/api/restxq" at "modules/restxq.xqm";
 import module namespace sec = "http://evolvedbinary.com/ns/pebble/api/security" at "modules/security.xqm";
@@ -25,7 +26,7 @@ import module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util" at "m
     1. How to properly deal with CORS - see api:cors-allow
     2. How to have a RESTXQ function which produces XML or JSON and chooses the appropriate serializer based on the request?
     3. Do we need sooo much information in the explorer API call, or should we move some info into further API calls?
-    4. Explorer API uses ?db= but we should really change this so we use the URI path. How to support unbounded paths in RESTXQ
+    4. Explorer API uses ?db= but we should really change this so we use the URI path. How to support unbounded paths in RESTXQ?
 :)
 
 
@@ -122,8 +123,46 @@ function api:put-document($uri, $copy-source, $move-source, $media-type, $body) 
                         },
                         exp:describe($doc-uri)
                     ]
+            else if (starts-with($media-type, "multipart/form-data")) then
+               (: CREATE multiple files :)
+               let $boundary := fn:substring-after($media-type, "boundary=")
+               let $parts := mul:extract-parts($boundary, $body)
+               let $file-parts := mul:file-parts($parts)
+               let $files :=
+                    for $file-part in $file-parts
+                    return
+                        map:merge(map:for-each($file-part, function($k, $v) {
+                            if ($k eq "body") then
+                                map:entry($k, $v)
+                            else if ($k eq "headers") then
+                                (
+                                for $cd-header in $v[?name eq "Content-Disposition"]
+                                return
+                                    map:entry("filename", replace($cd-header?value, '.*filename="(.+)".*', "$1"))
+                                ,
+                                for $cd-header in $v[?name eq "Content-Type"]
+                                return
+                                    map:entry("media-type", $cd-header?value)
+                                )
+                            else ()
+                        }))
+               return
+                   let $doc-uris := doc:put-multi($uri, $files)
+                   return
+                        [
+                            map {
+                                "code": $hsc:created,
+                                "headers": map {
+                                    "Content-Location": $uri
+                                }
+                            },
+                            array {
+                                $doc-uris ! exp:describe(.)
+                            }
+                        ]
+                   
             else
-                (: CREATE :)
+                (: CREATE single file :)
                 let $doc-uri := doc:put($uri, $media-type, $body)
                 return
                     [

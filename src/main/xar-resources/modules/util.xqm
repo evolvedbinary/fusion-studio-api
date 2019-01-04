@@ -155,7 +155,7 @@ declare function ut:is-current-user-member($groupname) as xs:boolean {
         (sm:get-group-managers($groupname), sm:get-group-members($groupname)) = $username
 };
 
-declare function ut:filter-map($map as map(*), $f as function(item(), item()*) as map(*)) as map(*)? {
+declare function ut:filter-map($map as map(*), $f as function(item(), item()*) as map(*)?) as map(*)? {
     map:merge(
         map:for-each($map, $f)
     )
