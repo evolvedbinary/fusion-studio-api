@@ -40,7 +40,9 @@ declare function doc:put($uri as xs:string, $media-type as xs:string, $body) as 
     let $doc-name := ut:last-path-component($uri)
     return
         if (sm:has-access(xs:anyURI($collection-uri), "w")) then
-            let $new-uri := xmldb:store($collection-uri, $doc-name, $body, $media-type)
+            (: NOTE we don't explicitly specify the media-type from the
+            request here, instead we let the database figure it out :)
+            let $new-uri := xmldb:store($collection-uri, $doc-name, $body)
             return
                 $new-uri
         else
@@ -59,6 +61,8 @@ declare function doc:put-multi($collection-uri as xs:string, $docs as map(xs:str
         let $collection-uri := ut:mkcol($collection-uri)
         return
             if (sm:has-access(xs:anyURI($collection-uri), "w")) then
+                (: NOTE we don't explicitly specify the media-type from the
+                request here, instead we let the database figure it out :)
                 xmldb:store($collection-uri, $doc-name, $doc?body)
             else
                 perr:error($perr:PD001, $collection-uri || "/" || $doc-name)
