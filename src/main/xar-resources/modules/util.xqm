@@ -88,7 +88,7 @@ function ut:_mkcol($current as xs:string, $remaining as xs:string*) as xs:string
         xmldb:create-collection(ut:parent-path($current), ut:last-path-component($current))
     else(),
 
-    if ($remaining) then
+    if (not(empty($remaining))) then
         ut:_mkcol($current || "/" || ut:head($remaining), ut:tail($remaining))
     else()
 };
