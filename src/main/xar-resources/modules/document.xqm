@@ -54,7 +54,7 @@ declare function doc:put-multi($collection-uri as xs:string, $docs as map(xs:str
     let $doc-name := ut:last-path-component($filename)
     let $collection-uri := if ($folder-path eq $doc-name) then $collection-uri else $collection-uri || "/" || $folder-path
     (: sort into path descending order... optimisation for the collection creation steps :)
-    order by fn:tokenize($filename, "/") descending
+    order by fn:count(fn:tokenize($filename, "/")) descending
     return
         let $collection-uri := ut:mkcol($collection-uri)
         return
