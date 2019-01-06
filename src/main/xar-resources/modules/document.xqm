@@ -39,14 +39,7 @@ declare function doc:put($uri as xs:string, $media-type as xs:string, $body) as 
     let $collection-uri := ut:parent-path($uri)
     let $doc-name := ut:last-path-component($uri)
     return
-        if (sm:has-access(xs:anyURI($collection-uri), "w")) then
-            (: NOTE we don't explicitly specify the media-type from the
-            request here, instead we let the database figure it out :)
-            let $new-uri := xmldb:store($collection-uri, $doc-name, $body)
-            return
-                $new-uri
-        else
-            perr:error($perr:PD001, $uri)
+        doc:store($collection-uri, $doc-name, $body)
 };
 
 declare function doc:put-multi($collection-uri as xs:string, $docs as map(xs:string, item())*) as xs:string* {
@@ -60,12 +53,38 @@ declare function doc:put-multi($collection-uri as xs:string, $docs as map(xs:str
     return
         let $collection-uri := ut:mkcol($collection-uri)
         return
-            if (sm:has-access(xs:anyURI($collection-uri), "w")) then
-                (: NOTE we don't explicitly specify the media-type from the
-                request here, instead we let the database figure it out :)
-                xmldb:store($collection-uri, $doc-name, $doc?body)
-            else
-                perr:error($perr:PD001, $collection-uri || "/" || $doc-name)
+            doc:store($collection-uri, $doc-name, $doc?body)
+};
+
+declare
+    %private
+function doc:store($collection-uri as xs:string, $doc-name as xs:string, $content) {
+    if (sm:has-access(xs:anyURI($collection-uri), "w")) then
+        let $_ := util:log("INFO", ("ABOUT TO STORE=" || $collection-uri || "/" || $doc-name)) return
+        
+        (: NOTE we don't explicitly specify the media-type from the
+        request here, instead we let eXist-db figure it out :)
+        
+        if (fn:ends-with($doc-name, ".html") or fn:ends-with($doc-name, ".htm")) then
+            (: HTML files may be XHTML or just plain HTML. Plain HTML has to be treated as non-XML (Binary) :)
+            try {
+                (: try as XHTML (XML) :)
+                xmldb:store($collection-uri, $doc-name, $content)
+            } catch * {
+                (: try as plain HTML (Binary) :)
+                let $uri := xmldb:store($collection-uri, $doc-name, $content, "application/octet-stream")
+                (: Setting a binary document to an XML document mimetype is current forbidden
+                 we likely need to update mime-types.xml so that html is binary type :)
+                (:
+                let $_ := xmldb:set-mime-type($uri, "text/html")
+                :)
+                return
+                    $uri
+            }
+        else
+            xmldb:store($collection-uri, $doc-name, $content)
+    else
+        perr:error($perr:PD001, $collection-uri || "/" || $doc-name)
 };
 
 declare function doc:delete($uri as xs:string) as xs:boolean {
