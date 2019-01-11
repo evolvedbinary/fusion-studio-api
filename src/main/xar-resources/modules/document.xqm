@@ -194,7 +194,7 @@ declare function doc:move($src-uri as xs:string, $dst-uri as xs:string) as xs:st
         return
 
             if ($src-name eq $dst-name) then
-                let $_ := xmldb:copy($src-parent, $dst-parent, $src-name)
+                let $_ := xmldb:move($src-parent, $dst-parent, $src-name)
                 return
                     $dst-uri
             else
