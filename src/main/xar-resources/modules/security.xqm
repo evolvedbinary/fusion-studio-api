@@ -86,8 +86,6 @@ function sec:update-user($username, $user-data as map(xs:string, item())) as xs:
                         sm:set-account-metadata($username, $attribute?key, $attribute?value)
                     })
                     return ()
-                    ,
-                    true()
                 )
             else (),
             
@@ -210,8 +208,6 @@ function sec:update-group($groupname, $group-data as map(xs:string, item())) as 
                         sm:set-account-metadata($groupname, $attribute?key, $attribute?value)
                     })
                     return ()
-                    ,
-                    true()
                 )
             else (),
             
