@@ -450,7 +450,7 @@ declare
     %rest:produces("application/json")
     %output:method("json")
 function api:get-group($groupname) {
-    if (ut:is-dba() or ut:is-current-user-member($groupname))
+    if (ut:is-dba() or ut:is-current-user-member-or-manager($groupname))
     then
         let $group := sec:get-group($groupname)
         return
@@ -491,7 +491,7 @@ function api:put-group($groupname, $body) {
             },
             ()
         )
-    else if (ut:is-dba() or ut:is-current-user-member($groupname))
+    else if (ut:is-dba() or ut:is-current-user-manager($groupname))
     then
         api:cors-allow(
             let $json-txt := util:base64-decode($body)
@@ -527,7 +527,7 @@ function api:delete-group($groupname) {
             },
             ()
         )
-    else if (ut:is-dba())
+    else if (ut:is-dba() or ut:is-current-user-manager($groupname))
     then
         api:cors-allow(
             map {
