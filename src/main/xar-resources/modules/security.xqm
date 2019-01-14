@@ -205,7 +205,7 @@ function sec:update-group($groupname, $group-data as map(xs:string, item())) as 
                 (
                     sec:clear-group-metadata($groupname),
                     let $_ := array:for-each($group-data?metadata, function($attribute as map(xs:string, xs:string)) {
-                        sm:set-account-metadata($groupname, $attribute?key, $attribute?value)
+                        sm:set-group-metadata($groupname, $attribute?key, $attribute?value)
                     })
                     return ()
                 )
@@ -238,7 +238,7 @@ function sec:create-group($groupname as xs:string, $group-data as map(xs:string,
             then
                 (
                     let $_ := array:for-each($group-data?metadata, function($attribute as map(xs:string, xs:string)) {
-                        sm:set-account-metadata($groupname, $attribute?key, $attribute?value)
+                        sm:set-group-metadata($groupname, $attribute?key, $attribute?value)
                     })
                     return ()
                     ,
