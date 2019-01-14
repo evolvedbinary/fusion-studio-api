@@ -232,7 +232,8 @@ function sec:create-group($groupname as xs:string, $group-data as map(xs:string,
     if (not(empty($group-data?groupName)) and ($groupname eq $group-data?groupName))
     then
         let $current-user := sm:id()/sm:id/sm:real/sm:username
-        let $_ := sm:create-group($groupname, ($current-user, array:flatten($group-data?managers)), "")
+        let $description := ($group-data?description, "")[1]
+        let $_ := sm:create-group($groupname, ($current-user, array:flatten($group-data?managers)), $description)
         return
             if (not(empty($group-data?metadata)))
             then
