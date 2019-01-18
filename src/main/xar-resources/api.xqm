@@ -18,6 +18,7 @@ import module namespace jx = "http://joewiz.org/ns/xquery/json-xml" at "modules/
 import module namespace mul = "http://evolvedbinary.com/ns/pebble/api/multipart" at "modules/multipart.xqm";
 import module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error" at "modules/error.xqm";
 import module namespace prxq = "http://evolvedbinary.com/ns/pebble/api/restxq" at "modules/restxq.xqm";
+import module namespace qry = "http://evolvedbinary.com/ns/pebble/api/query" at "modules/query.xqm";
 import module namespace sec = "http://evolvedbinary.com/ns/pebble/api/security" at "modules/security.xqm";
 import module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util" at "modules/util.xqm";
 
@@ -581,6 +582,69 @@ function api:restxq() {
     api:cors-allow(
         prxq:list-by-uri()
     )
+};
+
+declare
+    %rest:POST("{$body}")
+    %rest:path("/pebble/query")
+    %rest:header-param("Range", "{$range-header}")
+    %rest:consumes("application/json")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:query($range-header, $body) {
+    if (empty($body))
+    then
+        api:cors-allow(
+            map {
+                "code": $hsc:bad-request,
+                "reason": "Missing request body"
+            },
+            ()
+        )
+    else if (ut:is-guest())
+    then
+        api:cors-allow(
+            map {
+                "code": $hsc:unauthorized,
+                "reason": "Guest is not allowed to execute arbitary queries"
+            },
+            ()
+        )
+    else
+        let $json-txt := util:base64-decode($body)
+        let $query-data := fn:parse-json($json-txt)
+        return
+            let $range :=
+                if (fn:empty($range-header) or fn:not(fn:starts-with($range-header, "items=")))
+                then
+                    ()
+                else
+                    let $res := fn:analyze-string("items=0-1023", "items=([0-9]+)-([0-9]+)?")
+                    return
+                        ($res//fn:group[@nr eq "1"]/xs:integer(.), $res//fn:group[@nr eq "2"]/xs:integer(.))
+            
+            let $query-results := qry:execute($query-data, $range[1], $range[2])
+            
+            let $content-range-header :=
+                if (not(empty($range)))
+                then
+                    map {
+                        "Content-Range": "items " || $range[1] || "-" || count($query-results) || "/*"
+                    }
+                else
+                    map {}
+            return
+                api:cors-allow(
+                    map {
+                        "code": if (not(empty($range))) then $hsc:partial-content else $hsc:ok,
+                        "headers": map:merge((map {
+                            "Accept-Ranges": "items"
+                        }, $content-range-header))
+                    },
+                    map {
+                        "results": $query-results
+                    }
+                )
 };
 
 declare
