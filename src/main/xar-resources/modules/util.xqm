@@ -141,7 +141,23 @@ declare function ut:is-current-user($username as xs:string) as xs:boolean {
 
 (:~
  : Determines if the user currently executing
- : this query if a member of the group indicated
+ : this query is a member or manager of the group indicated
+ : by $groupName.
+ : 
+ : @param $groupname the name of a group
+ : 
+ : @return true if the user currently executing
+ :     the query is a member or manager of the group.
+ :)
+declare function ut:is-current-user-member-or-manager($groupname) as xs:boolean {
+    let $username := sm:id()/sm:id/(sm:effective|sm:real)/sm:username
+    return
+        (sm:get-group-managers($groupname), sm:get-group-members($groupname)) = $username
+};
+
+(:~
+ : Determines if the user currently executing
+ : this query is a member of the group indicated
  : by $groupName.
  : 
  : @param $groupname the name of a group
@@ -152,7 +168,23 @@ declare function ut:is-current-user($username as xs:string) as xs:boolean {
 declare function ut:is-current-user-member($groupname) as xs:boolean {
     let $username := sm:id()/sm:id/(sm:effective|sm:real)/sm:username
     return
-        (sm:get-group-managers($groupname), sm:get-group-members($groupname)) = $username
+        sm:get-group-members($groupname) = $username
+};
+
+(:~
+ : Determines if the user currently executing
+ : this query is a manager of the group indicated
+ : by $groupName.
+ : 
+ : @param $groupname the name of a group
+ : 
+ : @return true if the user currently executing
+ :     the query is a manager of the group.
+ :)
+declare function ut:is-current-user-manager($groupname) as xs:boolean {
+    let $username := sm:id()/sm:id/(sm:effective|sm:real)/sm:username
+    return
+        sm:get-group-managers($groupname) = $username
 };
 
 declare function ut:filter-map($map as map(*), $f as function(item(), item()*) as map(*)?) as map(*)? {
