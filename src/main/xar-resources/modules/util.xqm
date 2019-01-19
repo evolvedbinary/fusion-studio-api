@@ -187,6 +187,15 @@ declare function ut:is-current-user-manager($groupname) as xs:boolean {
         sm:get-group-managers($groupname) = $username
 };
 
+(:~
+ : Determines if the current user executing this query is the Guest
+ :
+ : @return true if the current user is the Guest
+ :)
+declare function ut:is-guest() as xs:boolean {
+    sm:id()/sm:id/sm:real/sm:username eq "guest"
+};
+
 declare function ut:filter-map($map as map(*), $f as function(item(), item()*) as map(*)?) as map(*)? {
     map:merge(
         map:for-each($map, $f)
