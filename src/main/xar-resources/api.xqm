@@ -619,7 +619,7 @@ function api:query($range-header, $body) {
                 then
                     ()
                 else
-                    let $res := fn:analyze-string("items=0-1023", "items=([0-9]+)-([0-9]+)?")
+                    let $res := fn:analyze-string($range-header, "items=([0-9]+)-([0-9]+)?")
                     return
                         ($res//fn:group[@nr eq "1"]/xs:integer(.), $res//fn:group[@nr eq "2"]/xs:integer(.))
             
