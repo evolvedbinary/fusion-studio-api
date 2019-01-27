@@ -35,11 +35,11 @@ function exp:describe-collection($uri) as map(xs:string, xs:string) {
         exp:collection-properties($uri),
         map {
             "collections": array {
-                xmldb:get-child-collections($uri) ! exp:collection-properties($uri || "/" || .)
+                (xmldb:get-child-collections($uri) => sort()) ! exp:collection-properties($uri || "/" || .)
 
             },
             "documents": array {
-                xmldb:get-child-resources($uri) ! exp:describe-document($uri || "/" || .)
+                (xmldb:get-child-resources($uri) => sort()) ! exp:describe-document($uri || "/" || .)
             }
         }
     ))
