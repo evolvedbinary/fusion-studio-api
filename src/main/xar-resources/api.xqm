@@ -584,6 +584,7 @@ function api:restxq() {
     )
 };
 
+
 declare
     %rest:POST("{$body}")
     %rest:path("/pebble/query")
@@ -605,7 +606,7 @@ function api:query($range-header, $body) {
     then
         api:cors-allow(
             map {
-                "code": $hsc:unauthorized,
+                "code": $hsc:forbidden,
                 "reason": "Guest is not allowed to execute arbitary queries"
             },
             ()

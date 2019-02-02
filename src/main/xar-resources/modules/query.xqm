@@ -16,7 +16,16 @@ import module namespace util = "http://exist-db.org/xquery/util";
  :)
 declare function qry:execute($query-data as map(xs:string, xs:string),
         $start as xs:integer?, $length as xs:integer?) as xs:string {
-    let $query := $query-data?query
+
+    let $query :=
+        if ($query-data?query-uri)
+        then
+            let $query-doc := util:binary-doc($query-data?query-uri)
+            return
+                util:base64-decode($query-doc)
+        else
+            $query-data?query
+
     let $serialization := $query-data?defaultSerialization
     let $eval-ser-fn :=
         if (not(empty($start)) and not(empty($length)))
