@@ -11,13 +11,13 @@
         <relativePath/>
     </parent>
 
-    <groupId>com.evolvedbinary.pebble</groupId>
-    <artifactId>pebble-api</artifactId>
+    <groupId>com.fusiondb.studio</groupId>
+    <artifactId>fusion-studio-api</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>Pebble API</name>
-    <description>API for Pebble</description>
-    <url>https://github.com/evolvedbinary/pebble-api/</url>
+    <name>Fusion Studio API</name>
+    <description>API for Fusion Studio</description>
+    <url>https://github.com/evolvedbinary/fusion-studio-api/</url>
 
     <organization>
         <name>Evolved Binary</name>
@@ -33,14 +33,14 @@
     </licenses>
 
     <scm>
-        <url>https://github.com/evolvedbinary/pebble-api.git</url>
-        <connection>scm:git:https://github.com/evolvedbinary/pebble-api.git</connection>
-        <developerConnection>scm:git:https://github.com/evolvedbinary/pebble-api.git</developerConnection>
+        <url>https://github.com/evolvedbinary/fusion-studio-api.git</url>
+        <connection>scm:git:https://github.com/evolvedbinary/fusion-studio-api.git</connection>
+        <developerConnection>scm:git:https://github.com/evolvedbinary/fusion-studio-api.git</developerConnection>
     </scm>
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/evolvedbinary/pebble-api/issues</url>
+        <url>https://github.com/evolvedbinary/fusion-studio-api/issues</url>
     </issueManagement>
 
     <properties>
@@ -52,7 +52,7 @@
         <!-- exist.version>5.0.0-SNAPSHOT</exist.version -->
 
         <!-- used in the EXPath Package Descriptor -->
-        <package-name>https://evolvedbinary.com/xar/pebble/api</package-name>
+        <package-name>https://fusiondb.com/studio/api</package-name>
     </properties>
 
     <dependencies>
