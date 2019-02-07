@@ -1,6 +1,6 @@
 xquery version "3.1";
 
-module namespace mul = "http://evolvedbinary.com/ns/pebble/api/multipart";
+module namespace mul = "http://fusiondb.com/ns/studio/api/multipart";
 
 declare namespace functx = "http://www.functx.com";
 

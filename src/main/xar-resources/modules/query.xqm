@@ -1,6 +1,6 @@
 xquery version "3.1";
 
-module namespace qry = "http://evolvedbinary.com/ns/pebble/api/query";
+module namespace qry = "http://fusiondb.com/ns/studio/api/query";
 
 declare namespace array = "http://www.w3.org/2005/xpath-functions/array";
 import module namespace util = "http://exist-db.org/xquery/util";

@@ -1,6 +1,6 @@
 xquery version "3.1";
 
-module namespace api = "http://evolvedbinary.com/ns/pebble/api";
+module namespace api = "http://fusiondb.com/studio/api";
 
 declare namespace err = "http://www.w3.org/2005/xqt-errors";
 declare namespace rest = "http://exquery.org/ns/restxq";
@@ -8,19 +8,19 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace http = "http://expath.org/ns/http-client";
 import module namespace sm = "http://exist-db.org/xquery/securitymanager";
 
-import module namespace config = "http://evolvedbinary.com/ns/pebble/api/config" at "modules/config.xqm";
-import module namespace col = "http://evolvedbinary.com/ns/pebble/api/collection" at "modules/collection.xqm";
-import module namespace doc = "http://evolvedbinary.com/ns/pebble/api/document" at "modules/document.xqm";
-import module namespace exp = "http://evolvedbinary.com/ns/pebble/api/explorer" at "modules/explorer.xqm";
+import module namespace config = "http://fusiondb.com/ns/studio/api/config" at "modules/config.xqm";
+import module namespace col = "http://fusiondb.com/ns/studio/api/collection" at "modules/collection.xqm";
+import module namespace doc = "http://fusiondb.com/ns/studio/api/document" at "modules/document.xqm";
+import module namespace exp = "http://fusiondb.com/ns/studio/api/explorer" at "modules/explorer.xqm";
 import module namespace hsc = "https://tools.ietf.org/html/rfc2616#section-10" at "modules/http-status-codes.xqm";
-import module namespace idx = "http://evolvedbinary.com/ns/pebble/api/index" at "modules/index.xqm";
+import module namespace idx = "http://fusiondb.com/ns/studio/api/index" at "modules/index.xqm";
 import module namespace jx = "http://joewiz.org/ns/xquery/json-xml" at "modules/json-xml.xqm";
-import module namespace mul = "http://evolvedbinary.com/ns/pebble/api/multipart" at "modules/multipart.xqm";
-import module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error" at "modules/error.xqm";
-import module namespace prxq = "http://evolvedbinary.com/ns/pebble/api/restxq" at "modules/restxq.xqm";
-import module namespace qry = "http://evolvedbinary.com/ns/pebble/api/query" at "modules/query.xqm";
-import module namespace sec = "http://evolvedbinary.com/ns/pebble/api/security" at "modules/security.xqm";
-import module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util" at "modules/util.xqm";
+import module namespace mul = "http://fusiondb.com/ns/studio/api/multipart" at "modules/multipart.xqm";
+import module namespace perr = "http://fusiondb.com/ns/studio/api/error" at "modules/error.xqm";
+import module namespace prxq = "http://fusiondb.com/ns/studio/api/restxq" at "modules/restxq.xqm";
+import module namespace qry = "http://fusiondb.com/ns/studio/api/query" at "modules/query.xqm";
+import module namespace sec = "http://fusiondb.com/ns/studio/api/security" at "modules/security.xqm";
+import module namespace ut = "http://fusiondb.com/ns/studio/api/util" at "modules/util.xqm";
 
 
 (: TODO(AR) -
@@ -33,7 +33,7 @@ import module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util" at "m
 
 declare
     %rest:GET
-    %rest:path("/pebble/version")
+    %rest:path("/fusiondb/version")
     %rest:produces("application/json")
     %output:method("json")
 function api:version() {
@@ -46,7 +46,7 @@ function api:version() {
 
 declare
     %rest:GET
-    %rest:path("/pebble/explorer")
+    %rest:path("/fusiondb/explorer")
     %rest:query-param("uri", "{$uri}", "/")
     %rest:produces("application/json")
     %output:method("json")
@@ -58,7 +58,7 @@ function api:explorer($uri) {
 
 declare
     %rest:GET
-    %rest:path("/pebble/document")
+    %rest:path("/fusiondb/document")
     %rest:query-param("uri", "{$uri}")
 function api:get-document($uri) {
     api:with-valid-uri-ex($uri, function($uri) {
@@ -87,7 +87,7 @@ function api:get-document($uri) {
 
 declare
     %rest:PUT("{$body}")
-    %rest:path("/pebble/document")
+    %rest:path("/fusiondb/document")
     %rest:header-param("Content-Type", "{$media-type}", "application/octet-stream")
     %rest:query-param("uri", "{$uri}")
     %rest:header-param("x-pebble-copy-source", "{$copy-source}")
@@ -189,7 +189,7 @@ function api:put-document($uri, $copy-source, $move-source, $media-type, $body) 
 
 declare
     %rest:DELETE
-    %rest:path("/pebble/document")
+    %rest:path("/fusiondb/document")
     %rest:query-param("uri", "{$uri}")
 function api:delete-document($uri) {
     api:with-valid-uri-ex($uri, function($uri) {
@@ -215,7 +215,7 @@ function api:delete-document($uri) {
 
 declare
     %rest:PUT
-    %rest:path("/pebble/collection")
+    %rest:path("/fusiondb/collection")
     %rest:query-param("uri", "{$uri}")
     %rest:header-param("x-pebble-copy-source", "{$copy-source}")
     %rest:header-param("x-pebble-move-source", "{$move-source}")
@@ -279,7 +279,7 @@ function api:put-collection($uri, $copy-source, $move-source) {
 
 declare
     %rest:DELETE
-    %rest:path("/pebble/collection")
+    %rest:path("/fusiondb/collection")
     %rest:query-param("uri", "{$uri}")
 function api:delete-collection($uri) {
     api:with-valid-uri-ex($uri, function($uri) {
@@ -304,7 +304,7 @@ function api:delete-collection($uri) {
 
 declare
     %rest:GET
-    %rest:path("/pebble/user")
+    %rest:path("/fusiondb/user")
     %rest:produces("application/json")
     %output:method("json")
 function api:list-users() {
@@ -325,7 +325,7 @@ function api:list-users() {
 
 declare
     %rest:GET
-    %rest:path("/pebble/user/{$username}")
+    %rest:path("/fusiondb/user/{$username}")
     %rest:produces("application/json")
     %output:method("json")
 function api:get-user($username) {
@@ -356,7 +356,7 @@ function api:get-user($username) {
 
 declare
     %rest:PUT("{$body}")
-    %rest:path("/pebble/user/{$username}")
+    %rest:path("/fusiondb/user/{$username}")
     %rest:consumes("application/json")
     %rest:produces("application/json")
     %output:method("json")
@@ -393,7 +393,7 @@ function api:put-user($username, $body) {
 
 declare
     %rest:DELETE
-    %rest:path("/pebble/user/{$username}")
+    %rest:path("/fusiondb/user/{$username}")
     %rest:produces("application/json")
     %output:method("json")
 function api:delete-user($username) {
@@ -426,7 +426,7 @@ function api:delete-user($username) {
 
 declare
     %rest:GET
-    %rest:path("/pebble/group")
+    %rest:path("/fusiondb/group")
     %rest:produces("application/json")
     %output:method("json")
 function api:list-groups() {
@@ -447,7 +447,7 @@ function api:list-groups() {
 
 declare
     %rest:GET
-    %rest:path("/pebble/group/{$groupname}")
+    %rest:path("/fusiondb/group/{$groupname}")
     %rest:produces("application/json")
     %output:method("json")
 function api:get-group($groupname) {
@@ -478,7 +478,7 @@ function api:get-group($groupname) {
 
 declare
     %rest:PUT("{$body}")
-    %rest:path("/pebble/group/{$groupname}")
+    %rest:path("/fusiondb/group/{$groupname}")
     %rest:consumes("application/json")
     %rest:produces("application/json")
     %output:method("json")
@@ -515,7 +515,7 @@ function api:put-group($groupname, $body) {
 
 declare
     %rest:DELETE
-    %rest:path("/pebble/group/{$groupname}")
+    %rest:path("/fusiondb/group/{$groupname}")
     %rest:produces("application/json")
     %output:method("json")
 function api:delete-group($groupname) {
@@ -548,7 +548,7 @@ function api:delete-group($groupname) {
 
 declare
     %rest:GET
-    %rest:path("/pebble/index")
+    %rest:path("/fusiondb/index")
     %rest:query-param("uri", "{$uri}")
     %rest:produces("application/json")
     %output:method("json")
@@ -575,7 +575,7 @@ function api:get-index($uri) {
 
 declare
     %rest:GET
-    %rest:path("/pebble/restxq")
+    %rest:path("/fusiondb/restxq")
     %rest:produces("application/json")
     %output:method("json")
 function api:restxq() {
@@ -587,7 +587,7 @@ function api:restxq() {
 
 declare
     %rest:POST("{$body}")
-    %rest:path("/pebble/query")
+    %rest:path("/fusiondb/query")
     %rest:header-param("Range", "{$range-header}")
     %rest:consumes("application/json")
     %rest:produces("application/json")

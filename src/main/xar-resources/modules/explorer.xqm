@@ -1,8 +1,8 @@
 xquery version "3.1";
 
-module namespace exp = "http://evolvedbinary.com/ns/pebble/api/explorer";
+module namespace exp = "http://fusiondb.com/ns/studio/api/explorer";
 
-import module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util" at "util.xqm";
+import module namespace ut = "http://fusiondb.com/ns/studio/api/util" at "util.xqm";
 
 import module namespace map = "http://www.w3.org/2005/xpath-functions/map";
 import module namespace sm = "http://exist-db.org/xquery/securitymanager";

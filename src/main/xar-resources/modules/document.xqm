@@ -1,9 +1,9 @@
 xquery version "3.1";
 
-module namespace doc = "http://evolvedbinary.com/ns/pebble/api/document";
+module namespace doc = "http://fusiondb.com/ns/studio/api/document";
 
-import module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error" at "error.xqm";
-import module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util" at "util.xqm";
+import module namespace perr = "http://fusiondb.com/ns/studio/api/error" at "error.xqm";
+import module namespace ut = "http://fusiondb.com/ns/studio/api/util" at "util.xqm";
 
 import module namespace sm = "http://exist-db.org/xquery/securitymanager";
 import module namespace util = "http://exist-db.org/xquery/util";

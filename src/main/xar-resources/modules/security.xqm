@@ -1,6 +1,6 @@
 xquery version "3.1";
 
-module namespace sec = "http://evolvedbinary.com/ns/pebble/api/security";
+module namespace sec = "http://fusiondb.com/ns/studio/api/security";
 
 declare namespace array = "http://www.w3.org/2005/xpath-functions/array";
 

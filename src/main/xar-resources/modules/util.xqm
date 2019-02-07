@@ -1,6 +1,6 @@
 xquery version "3.1";
 
-module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util";
+module namespace ut = "http://fusiondb.com/ns/studio/api/util";
 
 import module namespace sm = "http://exist-db.org/xquery/securitymanager";
 import module namespace util = "http://exist-db.org/xquery/util";

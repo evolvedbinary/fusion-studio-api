@@ -1,6 +1,6 @@
 xquery version "3.1";
 
-module namespace prxq = "http://evolvedbinary.com/ns/pebble/api/restxq";
+module namespace prxq = "http://fusiondb.com/ns/studio/api/restxq";
 
 import module namespace rest = "http://exquery.org/ns/restxq";
 

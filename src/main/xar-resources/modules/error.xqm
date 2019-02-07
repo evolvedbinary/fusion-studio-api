@@ -1,19 +1,19 @@
 xquery version "3.1";
 
-module namespace perr = "http://evolvedbinary.com/ns/pebble/api/error";
+module namespace perr = "http://fusiondb.com/ns/studio/api/error";
 
 declare variable $perr:PD001 := map {
-    "code": fn:QName("http://evolvedbinary.com/ns/pebble/api/error", "PD001"),
+    "code": fn:QName("http://fusiondb.com/ns/studio/api/error", "PD001"),
     "description": "Permission Denied"
 };
 
 declare variable $perr:PD002 := map {
-    "code": fn:QName("http://evolvedbinary.com/ns/pebble/api/error", "PD002"),
+    "code": fn:QName("http://fusiondb.com/ns/studio/api/error", "PD002"),
     "description": "Source Collection URI, does not exist"
 };
 
 declare variable $perr:PD003 := map {
-    "code": fn:QName("http://evolvedbinary.com/ns/pebble/api/error", "PD003"),
+    "code": fn:QName("http://fusiondb.com/ns/studio/api/error", "PD003"),
     "description": "Source Document URI, does not exist"
 };
 

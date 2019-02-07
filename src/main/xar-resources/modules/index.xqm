@@ -1,10 +1,10 @@
 xquery version "3.1";
 
-module namespace idx = "http://evolvedbinary.com/ns/pebble/api/index";
+module namespace idx = "http://fusiondb.com/ns/studio/api/index";
 
 declare namespace cc = "http://exist-db.org/collection-config/1.0";
 
-import module namespace ut = "http://evolvedbinary.com/ns/pebble/api/util" at "util.xqm";
+import module namespace ut = "http://fusiondb.com/ns/studio/api/util" at "util.xqm";
 
 declare function idx:list-explicit() as xs:string* {
     (: Note: the predicate filters out index definitons which only mention the old legacy full-text index :)
