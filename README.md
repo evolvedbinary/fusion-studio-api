@@ -1,5 +1,5 @@
-# Pebble API
-Server Side API for [Pebble](https://github.com/evolvedbinary/pebble) written in RESTXQ and XQuery.
+# Fusion Studio API
+Server Side API for [Fusion Studio](https://github.com/evolvedbinary/fusion-studio) written in RESTXQ and XQuery.
 
 API documentation is here: https://app.swaggerhub.com/apis/evolvedbinary/pebble-api/1.1.0
 
@@ -10,9 +10,9 @@ Requirements:
 * [Apache Maven](https://maven.apache.org/) 3.3+
 
 ```bash
-$ git clone https://github.com/evolvedbinary/pebble-api.git
-$ cd pebble-api
+$ git clone https://github.com/evolvedbinary/fusion-studio-api.git
+$ cd fusion-studio-api
 $ mvn clean package
 ```
 
-This will create an EXPath package in `target/pebble-api-x.y.z.xar`, which can be deployed to Granite. 
+This will create an EXPath package in `target/fusion-studio-api-x.y.z.xar`, which can be deployed to FusionDB. 
