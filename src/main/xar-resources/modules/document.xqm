@@ -134,30 +134,7 @@ declare function doc:copy($src-uri as xs:string, $dst-uri as xs:string) as xs:st
         let $dst-parent := $_[1]
         let $dst-name := $_[2]
         return
-            
-             if ($src-name eq $dst-name) then
-                let $_ := xmldb:copy($src-parent, $dst-parent, $src-name)
-                return
-                    $dst-uri
-            else
-                
-                (: copy to a temp collection :)
-                let $temp-id := util:uuid()
-                let $temp-col-uri := ut:mkcol("/db/" || $temp-id)
-                let $_ := xmldb:copy($src-parent, $temp-col-uri, $src-name)
-                
-                (: rename the document to its destination name:)
-                let $_ := xmldb:rename($temp-col-uri, $src-name, $dst-name)
-                return
-    
-                    (: move the renamed document into place :)
-                    let $_ := xmldb:move($temp-col-uri, $dst-parent, $dst-name)
-                    
-                    (: remove the temp collection :)
-                    let $_ := xmldb:remove($temp-col-uri)
-                    return
-                        
-                        $dst-uri
+            xmldb:copy-resource($src-parent, $src-name, $dst-parent, $dst-name)
 
     else
         perr:error($perr:PD003, $src-uri)

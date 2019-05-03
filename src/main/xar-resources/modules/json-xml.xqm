@@ -86,7 +86,7 @@ declare %private function jx:json-to-xml-recurse($json as item()*) as item()+ {
                             $array-member
                     }
             else if ($data-type eq "map") then
-                map:for-each-entry(
+                map:for-each(
                     $json, 
                     function($object-name, $object-value) {
                         let $object-value-data-type := jx:json-data-type($object-value)

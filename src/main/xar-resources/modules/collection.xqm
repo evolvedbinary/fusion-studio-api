@@ -59,7 +59,7 @@ declare function col:copy($src-uri as xs:string, $dst-uri as xs:string) as xs:st
         let $dst-name := $_[2]
         return
             if ($src-name eq $dst-name) then
-                let $_ := xmldb:copy($src-uri, $dst-parent)
+                let $_ := xmldb:copy-collection($src-uri, $dst-parent)
                 return
                     $dst-uri
             else
@@ -67,7 +67,7 @@ declare function col:copy($src-uri as xs:string, $dst-uri as xs:string) as xs:st
                 (: copy to a temp collection :)
                 let $temp-id := util:uuid()
                 let $temp-col-uri := ut:mkcol("/db/" || $temp-id)
-                let $_ := xmldb:copy($src-uri, $temp-col-uri)
+                let $_ := xmldb:copy-collection($src-uri, $temp-col-uri)
                 
                 (: rename the collection to its destination name:)
                 let $_ := xmldb:rename($temp-col-uri || "/" || $src-name, $dst-name)
