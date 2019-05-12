@@ -13,7 +13,7 @@
 
     <groupId>com.fusiondb.studio</groupId>
     <artifactId>fusion-studio-api</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>1.0.0-SNAPSHOT</version>
 
     <name>Fusion Studio API</name>
     <description>API for Fusion Studio</description>
