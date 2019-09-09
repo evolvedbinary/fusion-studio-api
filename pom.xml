@@ -69,17 +69,11 @@
         <resources>
             <resource>
                 <directory>src/main/xar-resources</directory>
-                <filtering>true</filtering>
-                <includes>
-                    <include>templates/**</include>
-                </includes>
+                <filtering>false</filtering>
             </resource>
             <resource>
-                <directory>src/main/xar-resources</directory>
-                <filtering>false</filtering>
-                <excludes>
-                    <exclude>templates/**</exclude>
-                </excludes>
+                <directory>src/main/xar-resources-filtered</directory>
+                <filtering>true</filtering>
             </resource>
         </resources>
 
