@@ -7,6 +7,7 @@ declare namespace rest = "http://exquery.org/ns/restxq";
 declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace http = "http://expath.org/ns/http-client";
 import module namespace sm = "http://exist-db.org/xquery/securitymanager";
+import module namespace system = "http://exist-db.org/xquery/system";
 
 import module namespace config = "http://fusiondb.com/ns/studio/api/config" at "modules/config.xqm";
 import module namespace col = "http://fusiondb.com/ns/studio/api/collection" at "modules/collection.xqm";
@@ -39,7 +40,13 @@ declare
 function api:version() {
     api:cors-allow(
         map {
-            "version": $config:version
+            "version": $config:version,
+            "server": map {
+                "product-name": system:get-product-name(),
+                "version": system:get-version(),
+                "revision": system:get-revision(),
+                "build": system:get-build()
+            }
         }
     )
 };
