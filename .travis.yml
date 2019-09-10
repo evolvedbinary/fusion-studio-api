@@ -1,0 +1,11 @@
+language: java
+
+os:
+  - linux
+  - osx
+
+osx_image: xcode11
+
+cache:
+  directories:
+    - $HOME/.m2
