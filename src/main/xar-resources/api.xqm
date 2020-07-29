@@ -97,8 +97,8 @@ declare
     %rest:path("/fusiondb/document")
     %rest:header-param("Content-Type", "{$media-type}", "application/octet-stream")
     %rest:query-param("uri", "{$uri}")
-    %rest:header-param("x-pebble-copy-source", "{$copy-source}")
-    %rest:header-param("x-pebble-move-source", "{$move-source}")
+    %rest:header-param("x-fs-copy-source", "{$copy-source}")
+    %rest:header-param("x-fs-move-source", "{$move-source}")
     %rest:produces("application/json")
     %output:method("json")
 function api:put-document($uri, $copy-source, $move-source, $media-type, $body) {
@@ -224,8 +224,8 @@ declare
     %rest:PUT
     %rest:path("/fusiondb/collection")
     %rest:query-param("uri", "{$uri}")
-    %rest:header-param("x-pebble-copy-source", "{$copy-source}")
-    %rest:header-param("x-pebble-move-source", "{$move-source}")
+    %rest:header-param("x-fs-copy-source", "{$copy-source}")
+    %rest:header-param("x-fs-move-source", "{$move-source}")
     %rest:produces("application/json")
     %output:method("json")
 function api:put-collection($uri, $copy-source, $move-source) {
@@ -664,7 +664,7 @@ function api:explorerOptions() {
             <http:header name="Access-Control-Allow-Origin" value="*"/>
             <http:header name="Access-Control-Max-Age" value="3628800"/>
             <http:header name="Access-Control-Allow-Methods" value="PUT, POST, DELETE, GET, OPTIONS"/>
-            <http:header name="Access-Control-Allow-Headers" value="Authorization, Content-Type, x-pebble-copy-source, x-pebble-move-source, Range"/>
+            <http:header name="Access-Control-Allow-Headers" value="Authorization, Content-Type, x-fs-copy-source, x-fs-move-source, Range"/>
         </http:response>
     </rest:response>
 };
