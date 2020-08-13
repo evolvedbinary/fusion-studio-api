@@ -66,7 +66,7 @@ declare function ut:tail($seq as item()*) as item()* {
  : @return the URI of the created collection
  :)
 declare function ut:mkcol($uri as xs:string) as xs:string {
-    let $parts := fn:tokenize(substring-after($uri, "/db"), "/")[fn:string-length(.) gt 0]
+    let $parts := fn:tokenize(substring-after($uri, "/db"), "/") ! .[fn:string-length(.) gt 0]
     return
         let $_ := ut:_mkcol("/db/" || ut:head($parts), ut:tail($parts))
         return
