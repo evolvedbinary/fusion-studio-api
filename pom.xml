@@ -154,8 +154,11 @@
                             <executable>curl</executable>
                             <arguments>
                                 <argument>-v</argument>
+                                <argument>--fail</argument>
                                 <argument>-X</argument>
                                 <argument>PUT</argument>
+                                <argument>-H</argument>
+                                <argument>Content-Type: application/octet-stream</argument>
                                 <argument>--data-binary</argument>
                                 <argument>@${project.build.directory}/${package-final-name}.xar</argument>
                                 <argument>http://admin:@localhost:${docker.test.port}/exist/rest/db/${package-final-name}.xar</argument>
@@ -172,10 +175,11 @@
                             <executable>curl</executable>
                             <arguments>
                                 <argument>-v</argument>
+                                <argument>--fail</argument>
                                 <argument>-X</argument>
                                 <argument>POST</argument>
                                 <argument>-H</argument>
-                                <argument>application/xml</argument>
+                                <argument>Content-Type: application/xml</argument>
                                 <argument>--data-binary</argument>
                                 <argument>@${project.build.testOutputDirectory}/deploy-xar.xq.xml</argument>
                                 <argument>http://admin:@localhost:${docker.test.port}/exist/rest/db/</argument>
