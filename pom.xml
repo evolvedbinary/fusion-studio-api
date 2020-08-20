@@ -6,7 +6,7 @@
     <parent>
         <groupId>org.exist-db</groupId>
         <artifactId>exist-apps-parent</artifactId>
-        <version>1.8</version>
+        <version>1.10.0</version>
         <relativePath />
     </parent>
 
@@ -98,6 +98,42 @@
         </testResources>
 
         <plugins>
+            <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>4.0.rc2</version>
+                <configuration>
+                    <licenseSets>
+                        <licenseSet>
+                            <header>com/mycila/maven/plugin/license/templates/AGPL-3.txt</header>
+                            <properties>
+                                <owner>${project.organization.name}</owner>
+                                <email>tech@evolvedbinary.com</email>
+                            </properties>
+                            <excludes>
+                                <exclude>.clabot</exclude>
+                                <exclude>pom.xml</exclude>
+                                <exclude>xquery-license-style.xml</exclude>
+                                <exclude>src/test/resources-filtered/deploy-xar.xq.xml</exclude>
+                            </excludes>
+                        </licenseSet>
+                    </licenseSets>
+                    <headerDefinitions>
+                        <headerDefinition>xquery-license-style.xml</headerDefinition>
+                    </headerDefinitions>
+                    <mapping>
+                        <xq>xquery_style</xq>
+                        <xqm>xquery_style</xqm>
+                    </mapping>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>check</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
             <!-- start up Server in Docker for integration-test -->
             <plugin>
