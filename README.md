@@ -4,6 +4,10 @@
 
 Server Side API for [Fusion Studio](https://github.com/evolvedbinary/fusion-studio) written in RESTXQ and XQuery.
 
+Compatible with:
+* [FusionDB Server](https://fusiondb.com) 1.0.0-ALPHA2 or newer
+* [eXist-db](http://www.exist-db.org) 5.0.0 or newer
+
 API documentation is here: https://app.swaggerhub.com/apis/evolvedbinary/pebble-api/1.1.0
 
 ## Build Instructions
