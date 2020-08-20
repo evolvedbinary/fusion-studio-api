@@ -1,0 +1,17 @@
+<query xmlns="http://exist.sourceforge.net/NS/exist">
+    <text><![CDATA[
+let $pkg-name := "${package-name}"
+return
+(
+	if (repo:list() = $pkg-name)
+	then
+		if (not(repo:undeploy($pkg-name)))
+		then
+			fn:error("Unable to undeploy package: " || $pkg-name)
+		else()
+	else(),
+
+	repo:install-and-deploy-from-db("/db/${package-final-name}.xar")
+)
+]]></text>
+</query>
