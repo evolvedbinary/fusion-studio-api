@@ -2,13 +2,19 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Document",
   "type": "object",
-  "required" : [ "code", "description" ],
+  "required" : [ "error" ],
   "properties": {
-    "code": {
-      "type": "integer"
-    },
-    "description": {
-      "type": "string"
+    "error": {
+      "type": "object",
+      "required" : [ "code", "description" ],
+      "properties": {
+        "code": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        }
+      }
     },
     "xquery-error": {
       "type": "object",

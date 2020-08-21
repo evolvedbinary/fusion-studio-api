@@ -34,6 +34,21 @@ declare variable $perr:PD003 := map {
     "description": "Source Document URI, does not exist"
 };
 
+declare variable $perr:AP001 := map {
+    "code": fn:QName("http://fusiondb.com/ns/studio/api/error", "AP001"),
+    "description": "Missing request body"
+};
+
+declare variable $perr:XQ001 := map {
+    "code": fn:QName("http://fusiondb.com/ns/studio/api/error", "XQ001"),
+    "description": "Stored query does not exist"
+};
+
+declare variable $perr:XQ002 := map {
+    "code": fn:QName("http://fusiondb.com/ns/studio/api/error", "XQ002"),
+    "description": "An error occurred whilst evaluating the query"
+};
+
 declare function perr:error($error as map(xs:string, item())) {
     perr:error($error, (), ())
 };

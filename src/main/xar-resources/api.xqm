@@ -640,8 +640,7 @@ function api:query($range-header, $body) {
                 "reason": "Missing request body"
             },
             map {
-                "code": 1,
-                "description": "Missing request body"
+                "error": $perr:AP001
             }
         )
     else if (ut:is-guest())
@@ -673,8 +672,7 @@ function api:query($range-header, $body) {
                         "reason": "Stored query: " || $query-data?query-uri || " does not exist!"
                     },
                     map {
-                        "code": 2,
-                        "description": "Stored query: " || $query-data?query-uri || " does not exist!"
+                        "error": $perr:XQ001
                     }
                 )
             else
@@ -695,8 +693,7 @@ function api:query($range-header, $body) {
                         }
                         return
                             map {
-                                "code": 3,
-                                "description": "An error occurred whilst evaluating the query",
+                                "error": $perr:XQ002,
                                 "xquery-error": ut:filter-map($error-map, ut:filter-entry-value-empty-sequence#2)
                             }
                     }
