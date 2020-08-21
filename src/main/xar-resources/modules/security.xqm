@@ -22,6 +22,7 @@ module namespace sec = "http://fusiondb.com/ns/studio/api/security";
 declare namespace array = "http://www.w3.org/2005/xpath-functions/array";
 
 import module namespace sm = "http://exist-db.org/xquery/securitymanager";
+import module namespace util = "http://exist-db.org/xquery/util";
 
 
 declare function sec:list-users() as array(xs:string) {
@@ -105,6 +106,12 @@ function sec:update-user($username, $user-data as map(xs:string, item())) as xs:
                     return ()
                 )
             else (),
+
+            (: change enabled/disabled? :)
+            if (not(empty($user-data?enabled)))
+            then
+                sm:set-account-enabled($username, $user-data?enabled)
+            else(),
             
             true() (: success :)
         )
