@@ -25,6 +25,7 @@ declare namespace output = "http://www.w3.org/2010/xslt-xquery-serialization";
 declare namespace http = "http://expath.org/ns/http-client";
 import module namespace sm = "http://exist-db.org/xquery/securitymanager";
 import module namespace system = "http://exist-db.org/xquery/system";
+import module namespace util = "http://exist-db.org/xquery/util";
 
 import module namespace config = "http://fusiondb.com/ns/studio/api/config" at "modules/config.xqm";
 import module namespace col = "http://fusiondb.com/ns/studio/api/collection" at "modules/collection.xqm";
@@ -638,7 +639,10 @@ function api:query($range-header, $body) {
                 "code": $hsc:bad-request,
                 "reason": "Missing request body"
             },
-            ()
+            map {
+                "code": 1,
+                "description": "Missing request body"
+            }
         )
     else if (ut:is-guest())
     then
@@ -652,38 +656,81 @@ function api:query($range-header, $body) {
     else
         let $json-txt := util:base64-decode($body)
         let $query-data := fn:parse-json($json-txt)
+        let $range :=
+            if (fn:empty($range-header) or fn:not(fn:starts-with($range-header, "items=")))
+            then
+                ()
+            else
+                let $res := fn:analyze-string($range-header, "items=([0-9]+)-([0-9]+)?")
+                return
+                    ($res//fn:group[@nr eq "1"]/xs:integer(.), $res//fn:group[@nr eq "2"]/xs:integer(.))
         return
-            let $range :=
-                if (fn:empty($range-header) or fn:not(fn:starts-with($range-header, "items=")))
-                then
-                    ()
-                else
-                    let $res := fn:analyze-string($range-header, "items=([0-9]+)-([0-9]+)?")
-                    return
-                        ($res//fn:group[@nr eq "1"]/xs:integer(.), $res//fn:group[@nr eq "2"]/xs:integer(.))
-            
-            let $query-results := qry:execute($query-data, $range[1], $range[2])
-            
-            let $content-range-header :=
-                if (not(empty($range)))
-                then
-                    map {
-                        "Content-Range": "items " || $range[1] || "-" || count($query-results) || "/*"
-                    }
-                else
-                    map {}
-            return
+            if ($query-data?query-uri and not(util:binary-doc-available($query-data?query-uri)))
+            then
                 api:cors-allow(
                     map {
-                        "code": if (not(empty($range))) then $hsc:partial-content else $hsc:ok,
-                        "headers": map:merge((map {
-                            "Accept-Ranges": "items"
-                        }, $content-range-header))
+                        "code": $hsc:bad-request,
+                        "reason": "Stored query: " || $query-data?query-uri || " does not exist!"
                     },
                     map {
-                        "results": $query-results
+                        "code": 2,
+                        "description": "Stored query: " || $query-data?query-uri || " does not exist!"
                     }
                 )
+            else
+                let $range-start := $range[1]
+                let $range-end := $range[2]
+                let $query-results :=
+                    try {
+                        qry:execute($query-data, $range-start, $range-end)
+                    } catch * {
+                        let $error-map := map {
+                            "code": $err:code,
+                            "description": $err:description,
+                            "value": $err:value,
+                            "module": $err:module,
+                            "line-number": $err:line-number,
+                            "column-number": $err:column-number,
+                            "additional": $err:additional
+                        }
+                        return
+                            map {
+                                "code": 3,
+                                "description": "An error occurred whilst evaluating the query",
+                                "xquery-error": ut:filter-map($error-map, ut:filter-entry-value-empty-sequence#2)
+                            }
+                    }
+                return
+                    if ($query-results instance of map(*))
+                    then
+                        api:cors-allow(
+                            map {
+                                "code": $hsc:bad-request,
+                                "reason": "query raised an error"
+                            },
+                            $query-results
+                        )
+                    else
+                        let $content-range-header :=
+                            if (not(empty($range)))
+                            then
+                                map {
+                                    "Content-Range": "items " || $range[1] || "-" || count($query-results) || "/*"
+                                }
+                            else
+                                map {}
+                        return
+                            api:cors-allow(
+                                map {
+                                    "code": if (not(empty($range))) then $hsc:partial-content else $hsc:ok,
+                                    "headers": map:merge((map {
+                                        "Accept-Ranges": "items"
+                                    }, $content-range-header))
+                                },
+                                map {
+                                    "results": $query-results
+                                }
+                            )
 };
 
 declare
