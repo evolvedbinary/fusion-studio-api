@@ -140,4 +140,16 @@ public class API {
         }
         return map;
     }
+
+    static <K, V>  Map<K, V>[] arrayOf(final Map<K, V>... entries) {
+        if (entries == null) {
+            return new Map[0];
+        }
+
+        final Map<K, V>[] arrayOfMaps = new Map[entries.length];
+        for (int i = 0; i < entries.length; i++) {
+            arrayOfMaps[i] = entries[i];
+        }
+        return arrayOfMaps;
+    }
 }
