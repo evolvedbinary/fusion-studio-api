@@ -30,6 +30,7 @@ import static io.restassured.http.ContentType.JSON;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.http.HttpStatus.*;
+import static org.hamcrest.CoreMatchers.is;
 
 public class QueryIT {
 
@@ -184,5 +185,49 @@ public class QueryIT {
                 statusCode(SC_BAD_REQUEST).
         assertThat().
                 body(matchesJsonSchemaInClasspath("query-error-schema.json"));
+    }
+
+    @Test
+    public void serializeQueryAsXmlNoIndent() {
+        final Map<String, Object> requestBody = mapOf(
+                Tuple("query", "<a><b>hello</b></a>"),
+                Tuple("defaultSerialization", mapOf(
+                        Tuple("method", "xml"),
+                        Tuple("indent", false)
+                ))
+        );
+
+        given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                contentType(JSON).
+                body(requestBody).
+        when().
+                post(getApiBaseUri() + "/query").
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body("results", is("<a><b>hello</b></a>"));
+    }
+
+    @Test
+    public void serializeQueryAsXmlIndent() {
+        final Map<String, Object> requestBody = mapOf(
+                Tuple("query", "<a><b>hello</b></a>"),
+                Tuple("defaultSerialization", mapOf(
+                        Tuple("method", "xml"),
+                        Tuple("indent", true)
+                ))
+        );
+
+        given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                contentType(JSON).
+                body(requestBody).
+        when().
+                post(getApiBaseUri() + "/query").
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body("results", is("<a>\n    <b>hello</b>\n</a>"));
     }
 }
