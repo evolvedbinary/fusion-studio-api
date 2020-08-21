@@ -8,7 +8,7 @@ Compatible with:
 * [FusionDB Server](https://fusiondb.com) 1.0.0-ALPHA2 or newer
 * [eXist-db](http://www.exist-db.org) 5.0.0 or newer
 
-API documentation is here: https://app.swaggerhub.com/apis/evolvedbinary/pebble-api/1.1.0
+API documentation is here: https://app.swaggerhub.com/apis/evolvedbinary/fusion-studio-api/1.1.0
 
 ## Build Instructions
 
