@@ -92,6 +92,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>com.evolvedbinary.j8fu</groupId>
+            <artifactId>j8fu</artifactId>
+            <version>1.23.0</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>

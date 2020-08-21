@@ -17,7 +17,12 @@
  */
 package com.fusiondb.studio.api;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
+
+import com.evolvedbinary.j8fu.tuple.Tuple2;
 
 public class API {
 
@@ -30,6 +35,16 @@ public class API {
      * Default Port for FusionDB Server
      */
     public static int DEFAULT_PORT = 4059;
+
+    /**
+     * Default admin username
+     */
+    public static String DEFAULT_ADMIN_USERNAME = "admin";
+
+    /**
+     * Default admin password
+     */
+    public static String DEFAULT_ADMIN_PASSWORD = "";
 
     /**
      * Default API Endpoint for Fusion Studio API
@@ -49,7 +64,7 @@ public class API {
     /**
      * Get the Base URI for the Fusion Studio API.
      *
-     * The URI can be overriden by environment variables
+     * The URI can be overridden by environment variables
      * see {@link #ENV_VAR_FS_API_HOST} and {@link #ENV_VAR_FS_API_PORT}.
      *
      * @return the base URI
@@ -71,6 +86,30 @@ public class API {
     }
 
     /**
+     * Get the Base URI for the eXist-db REST API.
+     *
+     * The URI can be overridden by environment variables
+     * see {@link #ENV_VAR_FS_API_HOST} and {@link #ENV_VAR_FS_API_PORT}.
+     *
+     * @return the REST base URI
+     */
+    public static String getRestApiBaseUri() {
+        final String host = envVarOrDefault(ENV_VAR_FS_API_HOST, DEFAULT_HOST, envVarValue -> envVarValue);
+        final int port = envVarOrDefault(ENV_VAR_FS_API_PORT, DEFAULT_PORT, envVarValue -> {
+            try {
+                return Integer.parseInt(envVarValue);
+            } catch (final NumberFormatException e) {
+                // invalid number
+                System.err.println("ENV.FS_API_PORT=" + envVarValue + ", is not a valid TCP port number. Using default: " + DEFAULT_PORT);
+                e.printStackTrace();
+                return DEFAULT_PORT;
+            }
+        });
+
+        return "http://" + host + ":" + port + "/exist/rest";
+    }
+
+    /**
      * Gets a value from an Environment variable or uses the default
      * if there is no such variable.
      *
@@ -88,5 +127,17 @@ public class API {
         } else {
             return defaultValue;
         }
+    }
+
+    static <K, V> Map<K, V> mapOf(final Tuple2<K, V>... entries) {
+        if (entries == null) {
+            return Collections.emptyMap();
+        }
+
+        final Map<K, V> map = new HashMap<>(entries.length);
+        for (final Tuple2<K, V> entry : entries) {
+            map.put(entry._1, entry._2);
+        }
+        return map;
     }
 }
