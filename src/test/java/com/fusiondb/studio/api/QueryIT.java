@@ -230,4 +230,76 @@ public class QueryIT {
         assertThat().
                 body("results", is("<a>\n    <b>hello</b>\n</a>"));
     }
+
+    @Test
+    public void serializeQueryAsAdaptive() {
+        final Map<String, Object> requestBody = mapOf(
+                Tuple("query", "( map {'x': 'y'}, <a>hello</a>, xs:date('2020-01-01') )"),
+                Tuple("defaultSerialization", mapOf(
+                        Tuple("method", "adaptive")
+                ))
+        );
+
+        given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                contentType(JSON).
+                body(requestBody).
+        when().
+                post(getApiBaseUri() + "/query").
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body("results", is("map{\"x\":\"y\"}\n" +
+                        "<a>hello</a>\n" +
+                        "xs:date(\"2020-01-01\")"));
+    }
+
+    @Test
+    public void serializeQueryAsJsonNoIndent() {
+        final Map<String, Object> requestBody = mapOf(
+                Tuple("query", "map {'a': 'b', 'x': ['y', 'z'], 't': true(), 'f': false() }"),
+                Tuple("defaultSerialization", mapOf(
+                        Tuple("method", "json"),
+                        Tuple("indent", false)
+                ))
+        );
+
+        given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                contentType(JSON).
+                body(requestBody).
+        when().
+                post(getApiBaseUri() + "/query").
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body("results", is("{\"a\":\"b\",\"x\":[\"y\",\"z\"],\"t\":true,\"f\":false}"));
+    }
+
+    @Test
+    public void serializeQueryAsJsonIndent() {
+        final Map<String, Object> requestBody = mapOf(
+                Tuple("query", "map {'a': 'b', 'x': ['y', 'z'], 't': true(), 'f': false() }"),
+                Tuple("defaultSerialization", mapOf(
+                        Tuple("method", "json"),
+                        Tuple("indent", true)
+                ))
+        );
+
+        given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                contentType(JSON).
+                body(requestBody).
+        when().
+                post(getApiBaseUri() + "/query").
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body("results", is("{\n" +
+                        "  \"a\" : \"b\",\n" +
+                        "  \"x\" : [ \"y\", \"z\" ],\n" +
+                        "  \"t\" : true,\n" +
+                        "  \"f\" : false\n" +
+                        "}"));
+    }
 }
