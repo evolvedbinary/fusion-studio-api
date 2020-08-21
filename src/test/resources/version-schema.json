@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Document",
+  "type": "object",
+  "required" : [ "version", "server" ],
+  "properties" : {
+    "version": {
+      "type": "string",
+      "description": "version string",
+      "example": "1.2.3"
+    },
+    "server": {
+      "type": "object",
+      "description": "server version",
+      "properties": {
+        "product-name": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string",
+          "example": "1.2.3"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "build": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

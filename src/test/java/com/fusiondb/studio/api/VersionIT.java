@@ -21,6 +21,8 @@ import org.junit.jupiter.api.Test;
 
 import static com.fusiondb.studio.api.API.getApiBaseUri;
 import static io.restassured.RestAssured.when;
+import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
+import static org.apache.http.HttpStatus.SC_OK;
 
 public class VersionIT {
 
@@ -28,7 +30,9 @@ public class VersionIT {
     public void getServerVersion() {
         when().
                 get(getApiBaseUri() + "/version").
-        then()
-                .statusCode(200);
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body(matchesJsonSchemaInClasspath("version-schema.json"));
     }
 }
