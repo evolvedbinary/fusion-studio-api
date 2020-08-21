@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ACE",
+  "type": "object",
+  "required" : [ "accessType", "mode", "target", "who" ],
+  "properties" : {
+    "mode" : {
+      "pattern" : "[rwx-]{3}",
+      "type" : "string",
+      "example" : "-wx"
+    },
+    "target" : {
+      "type" : "string",
+      "example" : "USER",
+      "enum" : [ "USER", "GROUP" ]
+    },
+    "accessType" : {
+      "type" : "string",
+      "example" : "DENIED",
+      "enum" : [ "ALLOWED", "DENIED" ]
+    },
+    "who" : {
+      "type" : "string",
+      "example" : "a-read-only-user"
+    }
+  }
+}

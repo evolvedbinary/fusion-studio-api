@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SubCollection",
+  "type": "object",
+  "required": [
+    "acl",
+    "created",
+    "group",
+    "mode",
+    "owner",
+    "uri"
+  ],
+  "properties": {
+    "uri": {
+      "type": "string",
+      "format": "uri",
+      "example": "/db/col1"
+    },
+    "created": {
+      "type": "string",
+      "format": "date-time",
+      "example": "2018-11-14T15:45:26.539+08:00"
+    },
+    "owner": {
+      "type": "string",
+      "example": "SYSTEM"
+    },
+    "group": {
+      "type": "string",
+      "example": "dba"
+    },
+    "mode": {
+      "type": "string",
+      "example": "rwxr-xr-x"
+    },
+    "acl": {
+      "type": "array",
+      "items": {
+        "$ref": "ace-schema.json"
+      }
+    }
+  }
+}

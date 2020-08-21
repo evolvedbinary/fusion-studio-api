@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Document",
+  "type": "object",
+  "required" : [ "acl", "binaryDoc", "created", "group", "lastModified", "mediaType", "mode", "owner", "size", "uri" ],
+  "properties" : {
+    "uri" : {
+      "type" : "string",
+      "format" : "uri",
+      "example" : "/db/doc1.xml"
+    },
+    "created" : {
+      "type" : "string",
+      "format" : "date-time",
+      "example" : "2018-11-14T15:45:26.539+08:00"
+    },
+    "lastModified" : {
+      "type" : "string",
+      "format" : "date-time",
+      "example" : "2018-11-14T15:45:26.539+08:00"
+    },
+    "mediaType" : {
+      "type" : "string",
+      "example" : "application/xml"
+    },
+    "binaryDoc" : {
+      "type" : "boolean",
+      "example" : false
+    },
+    "size" : {
+      "type" : "integer",
+      "format" : "int64",
+      "example" : 8192
+    },
+    "owner" : {
+      "type" : "string",
+      "example" : "SYSTEM"
+    },
+    "group" : {
+      "type" : "string",
+      "example" : "dba"
+    },
+    "mode" : {
+      "type" : "string",
+      "example" : "rwxr-xr-x"
+    },
+    "acl" : {
+      "type" : "array",
+      "items" : {
+        "$ref" : "ace-schema.json"
+      }
+    }
+  }
+}
