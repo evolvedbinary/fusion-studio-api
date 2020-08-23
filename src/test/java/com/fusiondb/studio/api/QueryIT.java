@@ -17,6 +17,7 @@
  */
 package com.fusiondb.studio.api;
 
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -256,6 +257,8 @@ public class QueryIT {
 
     @Test
     public void serializeQueryAsJsonNoIndent() {
+        Assumptions.assumeFalse(testServerHasBadJsonSerialization());
+
         final Map<String, Object> requestBody = mapOf(
                 Tuple("query", "map {'a': 'b', 'x': ['y', 'z'], 't': true(), 'f': false() }"),
                 Tuple("defaultSerialization", mapOf(
@@ -278,6 +281,8 @@ public class QueryIT {
 
     @Test
     public void serializeQueryAsJsonIndent() {
+        Assumptions.assumeFalse(testServerHasBadJsonSerialization());
+
         final Map<String, Object> requestBody = mapOf(
                 Tuple("query", "map {'a': 'b', 'x': ['y', 'z'], 't': true(), 'f': false() }"),
                 Tuple("defaultSerialization", mapOf(

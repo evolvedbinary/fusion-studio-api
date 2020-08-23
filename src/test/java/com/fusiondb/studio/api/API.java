@@ -61,6 +61,8 @@ public class API {
      */
     public static String ENV_VAR_FS_API_PORT = "FS_API_PORT";
 
+    private static String ENV_VAR_DOCKER_TEST_IMAGE = "DOCKER_TEST_IMAGE";
+
     /**
      * Get the Base URI for the Fusion Studio API.
      *
@@ -141,6 +143,7 @@ public class API {
         return map;
     }
 
+
     static <K, V>  Map<K, V>[] arrayOf(final Map<K, V>... entries) {
         if (entries == null) {
             return new Map[0];
@@ -151,5 +154,16 @@ public class API {
             arrayOfMaps[i] = entries[i];
         }
         return arrayOfMaps;
+    }
+
+    static boolean testServerHasBadJsonSerialization() {
+        final String dockerTestImage = envVarOrDefault(ENV_VAR_DOCKER_TEST_IMAGE, null, envVarValue -> envVarValue);
+        if (dockerTestImage == null || dockerTestImage.isEmpty()) {
+            return false;
+        }
+
+        return dockerTestImage.endsWith("fusiondb-server:1.0.0-ALPHA2")
+                || dockerTestImage.endsWith("existdb:5.0.0")
+                || dockerTestImage.endsWith("existdb:5.2.0");
     }
 }
