@@ -17,6 +17,7 @@
  */
 package com.fusiondb.studio.api;
 
+import io.restassured.filter.log.LogDetail;
 import org.junit.jupiter.api.Test;
 
 import static com.fusiondb.studio.api.API.getApiBaseUri;
@@ -41,6 +42,7 @@ public class ExplorerIT {
         when().
                 get(getApiBaseUri() + "/explorer?uri=/db").
         then().
+                //log().ifValidationFails(LogDetail.BODY).
                 statusCode(SC_OK).
         assertThat().
                 body(matchesJsonSchemaInClasspath("explorer-schema.json"));
