@@ -81,10 +81,10 @@ public class UserIT {
         then().
                 statusCode(SC_NO_CONTENT);
 
-        // get user
+        // 3. get user
         final ExtractableResponse<Response> userResponse = getUser(userId);
 
-        // check they are now disabled
+        // 4. check they are now disabled
         assertFalse(userResponse.jsonPath().getBoolean("enabled"));
     }
 
