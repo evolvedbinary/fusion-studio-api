@@ -33,7 +33,6 @@ import module namespace doc = "http://fusiondb.com/ns/studio/api/document" at "m
 import module namespace exp = "http://fusiondb.com/ns/studio/api/explorer" at "modules/explorer.xqm";
 import module namespace hsc = "https://tools.ietf.org/html/rfc2616#section-10" at "modules/http-status-codes.xqm";
 import module namespace idx = "http://fusiondb.com/ns/studio/api/index" at "modules/index.xqm";
-import module namespace jx = "http://joewiz.org/ns/xquery/json-xml" at "modules/json-xml.xqm";
 import module namespace mul = "http://fusiondb.com/ns/studio/api/multipart" at "modules/multipart.xqm";
 import module namespace perr = "http://fusiondb.com/ns/studio/api/error" at "modules/error.xqm";
 import module namespace prxq = "http://fusiondb.com/ns/studio/api/restxq" at "modules/restxq.xqm";
@@ -233,6 +232,52 @@ function api:put-document($uri, $copy-source, $move-source, $media-type, $body) 
 };
 
 declare
+    %rest:POST("{$body}")
+    %rest:path("/fusiondb/document")
+    %rest:query-param("uri", "{$uri}")
+    %rest:consumes("application/json")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:update-document-properties($uri, $body) {
+    api:with-valid-uri-ex($uri, function($uri) {
+        if (empty($body))
+        then
+            [
+                map {
+                    "code": $hsc:bad-request,
+                    "reason": "Missing request body"
+                },
+                ()
+             ]
+        else
+            (: TODO explicit xs:string cast below is required due to
+               a Type error in eXist-db that needs investigating...
+               UntypedValueCheck.java for $body has atomize=false,
+               but should be atomize=true.
+            :)
+            let $json-txt := util:base64-decode($body cast as xs:string)
+            let $document-properties := fn:parse-json($json-txt)
+            return
+                try {
+                    [
+                        map {
+                            "code": if (doc:update-properties($uri, $document-properties)) then $hsc:no-content else $hsc:not-found
+                        },
+                        ()
+                    ]
+                } catch perr:PD001 {
+                    [
+                        map {
+                            "code": $hsc:forbidden,
+                            "reason": $err:description
+                        },
+                        ()
+                    ]
+                }
+    })
+};
+
+declare
     %rest:DELETE
     %rest:path("/fusiondb/document")
     %rest:query-param("uri", "{$uri}")
@@ -319,6 +364,52 @@ function api:put-collection($uri, $copy-source, $move-source) {
                 ()
             ]
         }
+    })
+};
+
+declare
+    %rest:POST("{$body}")
+    %rest:path("/fusiondb/collection")
+    %rest:query-param("uri", "{$uri}")
+    %rest:consumes("application/json")
+    %rest:produces("application/json")
+    %output:method("json")
+function api:update-collection-properties($uri, $body) {
+    api:with-valid-uri-ex($uri, function($uri) {
+        if (empty($body))
+        then
+            [
+                map {
+                    "code": $hsc:bad-request,
+                    "reason": "Missing request body"
+                },
+                ()
+             ]
+        else
+            (: TODO explicit xs:string cast below is required due to
+               a Type error in eXist-db that needs investigating...
+               UntypedValueCheck.java for $body has atomize=false,
+               but should be atomize=true.
+            :)
+            let $json-txt := util:base64-decode($body cast as xs:string)
+            let $collection-properties := fn:parse-json($json-txt)
+            return
+                try {
+                    [
+                        map {
+                            "code": if (col:update-properties($uri, $collection-properties)) then $hsc:no-content else $hsc:not-found
+                        },
+                        ()
+                    ]
+                } catch perr:PD001 {
+                    [
+                        map {
+                            "code": $hsc:forbidden,
+                            "reason": $err:description
+                        },
+                        ()
+                    ]
+                }
     })
 };
 
