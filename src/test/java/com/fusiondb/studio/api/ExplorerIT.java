@@ -22,19 +22,36 @@ import org.junit.jupiter.api.Test;
 import static com.fusiondb.studio.api.API.getApiBaseUri;
 import static io.restassured.RestAssured.when;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static org.apache.http.HttpStatus.SC_FORBIDDEN;
-import static org.apache.http.HttpStatus.SC_OK;
+import static org.apache.http.HttpStatus.*;
 
 public class ExplorerIT {
 
     @Test
     public void root() {
         when().
+                get(getApiBaseUri() + "/explorer?uri=/").
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body(matchesJsonSchemaInClasspath("explorer-schema.json"));
+    }
+
+    @Test
+    public void db() {
+        when().
                 get(getApiBaseUri() + "/explorer?uri=/db").
         then().
                 statusCode(SC_OK).
         assertThat().
                 body(matchesJsonSchemaInClasspath("explorer-schema.json"));
+    }
+
+    @Test
+    public void invalidUri() {
+        when().
+                get(getApiBaseUri() + "/explorer?uri=/invalid").
+        then().
+                statusCode(SC_BAD_REQUEST);
     }
 
     /**

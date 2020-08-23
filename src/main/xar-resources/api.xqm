@@ -76,23 +76,29 @@ declare
     %rest:produces("application/json")
     %output:method("json")
 function api:explorer($uri) {
-    api:with-valid-uri-ex($uri, function($uri) {
+    if (count($uri) eq 1 and ($uri[1] = ("/", "/db") or fn:starts-with($uri[1], "/db/")))
+    then
         if (sm:has-access($uri, "r-x"))
         then
-            [
-                (),
+            api:cors-allow(
                 exp:describe($uri)
-            ]
+            )
         else
-        [
+            api:cors-allow(
+                map {
+                    "code": $hsc:forbidden,
+                    "reason": "User: " || (sm:id()//sm:username)[1] || " is not permitted to access: " || $uri
+                },
+                ()
+            )
+    else
+        api:cors-allow(
             map {
-                "code": $hsc:forbidden,
-                "reason": "User: " || (sm:id()//sm:username)[1] || " is not permitted to access: " || $uri
+                "code": $hsc:bad-request,
+                "reason": "URI must start / or /db"
             },
             ()
-        ]
-
-    })
+        )
 };
 
 declare
