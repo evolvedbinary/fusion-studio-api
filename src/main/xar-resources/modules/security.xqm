@@ -152,19 +152,21 @@ function sec:create-user($username as xs:string, $user-data as map(xs:string, it
          :)
         let $_ := sm:create-account($username, util:uuid(), $primary-group, ($primary-group, array:flatten($user-data?groups)))
         let $_ := sm:passwd-hash($username, $user-data?password)
-        return
+        let $_ :=
             if (not(empty($user-data?metadata)))
             then
-                (
-                    let $_ := array:for-each($user-data?metadata, function($attribute as map(xs:string, xs:string)) {
-                        sm:set-account-metadata($username, $attribute?key, $attribute?value)
-                    })
-                    return ()
-                    ,
-                    true()
-                )
-            else
-                true()
+                let $_ := array:for-each($user-data?metadata, function($attribute as map(xs:string, xs:string)) {
+                    sm:set-account-metadata($username, $attribute?key, $attribute?value)
+                })
+                return ()
+            else()
+        let $_ :=
+            if (not(empty($user-data?enabled)))
+            then
+                sm:set-account-enabled($username, $user-data?enabled)
+            else()
+        return
+            true()
     else
         false()
 };

@@ -29,17 +29,39 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.http.ContentType.JSON;
 import static org.apache.http.HttpStatus.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class UserIT {
 
     @Test
     public void createUser() {
-        createUser("123");
+        final String userId = "123";
+
+        createUser(userId);
+
+        // get user
+        final ExtractableResponse<Response> userResponse = getUser(userId);
+
+        // check they are enabled
+        assertTrue(userResponse.jsonPath().getBoolean("enabled"));
+    }
+
+    @Test
+    public void createUserDisabled() {
+        final String userId = "456";
+
+        createUser(userId, true);
+
+        // get user
+        final ExtractableResponse<Response> userResponse = getUser(userId);
+
+        // check they are disabled
+        assertFalse(userResponse.jsonPath().getBoolean("enabled"));
     }
 
     @Test
     public void disableUser() {
-        final String userId = "456";
+        final String userId = "789";
 
         // 1. create the user
         createUser(userId);
@@ -78,6 +100,10 @@ public class UserIT {
     }
 
     private void createUser(final String userId) {
+        createUser(userId,false);
+    }
+
+    private void createUser(final String userId, final boolean disabled) {
         final Map<String, Object> requestBody = mapOf(
                 Tuple("userName", "user" + userId),
                 Tuple("password", "user" + userId),
@@ -92,6 +118,10 @@ public class UserIT {
                         )
                 ))
         );
+
+        if (disabled) {
+            requestBody.put("enabled", false);
+        }
 
         given().
                 auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
