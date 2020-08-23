@@ -215,15 +215,23 @@ function sec:update-group($groupname, $group-data as map(xs:string, item())) as 
     then
         (
             (: change managers? :)
-            if (not(empty($group-data?managers)))
-            then
-                (
-                    (: remove from existing group managers :)
-                    sm:get-group-managers($groupname) ! sm:remove-group-member($groupname, .),
-                    (: add to new manangers :)
-                    array:flatten($group-data?managers) ! sm:add-group-manager($groupname, .)
-                )
-            else (),
+            let $new-managers := array:flatten($group-data?managers)
+            return
+                if (not(empty($new-managers)))
+                then
+                    let $existing-managers := sm:get-group-managers($groupname)
+                    let $managers-to-remove := $existing-managers[not( . = $new-managers)]
+                    let $managers-to-add := $new-managers[not(. = $existing-managers)]
+                    return
+                    (
+                        (: remove from existing group managers :)
+                        $managers-to-remove ! sm:remove-group-manager($groupname, .),
+
+                        (: add to new managers :)
+                        $managers-to-add ! sm:add-group-manager($groupname, .)
+                    )
+                else ()
+            ,
             
             (: change metadata? :)
             if (not(empty($group-data?metadata)))
