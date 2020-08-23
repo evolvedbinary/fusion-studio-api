@@ -37,7 +37,7 @@ jobs:
         - FS_API_PORT=8080
         - DOCKER_TEST_IMAGE=existdb/existdb:5.2.0
 
-    - name: Linux / eXist-db Nightly
+    - name: Linux / eXist-db Latest
       os: linux
       env:
         - FS_API_PORT=8080
