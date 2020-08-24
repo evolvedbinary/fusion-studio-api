@@ -5,10 +5,10 @@
 Server Side API for [Fusion Studio](https://github.com/evolvedbinary/fusion-studio) written in RESTXQ and XQuery.
 
 Compatible with:
-* [FusionDB Server](https://fusiondb.com) 1.0.0-ALPHA2 or newer
+* [FusionDB Server](https://fusiondb.com) 1.0.0-ALPHA3 or newer
 * [eXist-db](http://www.exist-db.org) 5.0.0 or newer
 
-API documentation is here: https://app.swaggerhub.com/apis/evolvedbinary/fusion-studio-api/1.1.0
+API documentation is here: https://app.swaggerhub.com/apis/evolvedbinary/fusion-studio-api/1.1.1
 
 ## Build Instructions
 
@@ -22,4 +22,4 @@ $ cd fusion-studio-api
 $ mvn clean package
 ```
 
-This will create an EXPath package in `target/fusion-studio-api-x.y.z.xar`, which can be deployed to FusionDB. 
+This will create an EXPath package in `target/fusion-studio-api-x.y.z.xar`, which can be deployed to FusionDB (or eXist-db). 
