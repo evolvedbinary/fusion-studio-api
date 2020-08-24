@@ -77,8 +77,7 @@ declare
     %private
 function doc:store($collection-uri as xs:string, $doc-name as xs:string, $content) {
     if (sm:has-access(xs:anyURI($collection-uri), "w")) then
-        let $_ := util:log("INFO", ("ABOUT TO STORE=" || $collection-uri || "/" || $doc-name)) return
-        
+
         (: NOTE we don't explicitly specify the media-type from the
         request here, instead we let eXist-db figure it out :)
         
@@ -102,6 +101,63 @@ function doc:store($collection-uri as xs:string, $doc-name as xs:string, $conten
             xmldb:store($collection-uri, $doc-name, $content)
     else
         perr:error($perr:PD001, $collection-uri || "/" || $doc-name)
+};
+
+declare function doc:update-properties($uri as xs:string, $document-properties as map(xs:string, item())) as xs:boolean {
+    if (ut:doc-available($uri)) then
+        let $collection-uri := ut:parent-path($uri)
+        let $doc-name := ut:last-path-component($uri)
+        return
+            if (sm:has-access(xs:anyURI($uri), "r--")
+                and sm:has-access(xs:anyURI($collection-uri), "r-x")
+                and ut:is-current-user(sm:get-permissions(xs:anyURI($uri))/sm:permission/@owner))
+            then
+                (: update document properties :)
+                (
+                    let $_ :=
+                        if ($document-properties?mediaType)
+                        then
+                            xmldb:set-mime-type(xs:anyURI($uri), $document-properties?mediaType)
+                        else()
+                    let $_ :=
+                        if ($document-properties?mode)
+                        then
+                            sm:chmod(xs:anyURI($uri), $document-properties?mode)
+                        else()
+                    let $_ :=
+                        if ($document-properties?acl)
+                        then
+                            let $_ := sm:clear-acl(xs:anyURI($uri))
+                            let $_ := array:for-each($document-properties?acl, function($ace) {
+                                let $f := if ($ace?target eq "USER")
+                                then
+                                    sm:add-user-ace#4
+                                else
+                                    sm:add-group-ace#4
+                                return
+                                    $f(xs:anyURI($uri), $ace?who, $ace?accessType eq "ALLOWED", $ace?mode)
+
+                            })
+                            return
+                                ()
+                        else()
+                    let $_ :=
+                        if ($document-properties?group)
+                        then
+                            sm:chgrp(xs:anyURI($uri), $document-properties?group)
+                        else()
+                    let $_ :=
+                        if ($document-properties?owner)
+                        then
+                            sm:chown(xs:anyURI($uri), $document-properties?owner)
+                        else()
+                    return
+                        true()
+                )
+            else
+                perr:error($perr:PD001, $uri)
+    else
+        false()
 };
 
 declare function doc:delete($uri as xs:string) as xs:boolean {

@@ -64,36 +64,63 @@ function exp:describe-collection($uri) as map(xs:string, xs:string) {
 
 declare
     %private
-function exp:collection-properties($uri) as map(xs:string, xs:string) {
-    map:merge((
-        exp:common-resource-properties($uri),
-        map {
-            "created": xmldb:created($uri)
-        }
-    ))
+function exp:collection-properties($uri) as map(xs:string, xs:string)? {
+    (:
+        TODO the need for the sm:has-access check below is likely
+        a bug. I think reading the properties of the collection should
+        not require read access to the collection as the collection
+        properties are stored in the Collection entry... check what
+        Unix does!
+
+        It seems especially strange... as xmldb:get-child-collections
+        is able to read the collection entries without needing
+        read access on each collection!
+        :)
+    if (sm:has-access(xs:anyURI($uri), "r--"))
+    then
+        map:merge((
+            exp:common-resource-properties($uri),
+            map {
+                "created": xmldb:created($uri)
+            }
+        ))
+    else()
 };
 
 declare
     %private
-function exp:describe-document($uri) as map(xs:string, item()) {
-    let $collection-uri := ut:parent-path($uri)
-    let $doc-name := ut:last-path-component($uri)
+function exp:describe-document($uri) as map(xs:string, item())? {
+    (:
+    TODO the need for the sm:has-access check below is likely
+    a bug. I think reading the properties of the document should
+    not require read access to the document as the document
+    properties are stored in the Collection entry... check what
+    Unix does!
 
-    let $last-modified := xmldb:last-modified($collection-uri, $doc-name)
-    let $media-type := xmldb:get-mime-type($uri)
-    let $is-binary-doc := util:is-binary-doc($uri)
-    let $size := xmldb:size($collection-uri, $doc-name)
-    return
-        map:merge((
-            exp:common-resource-properties($uri),
-            map {
-                "created": xmldb:created($collection-uri, $doc-name),
-                "lastModified": $last-modified,
-                "mediaType": $media-type,
-                "binaryDoc": $is-binary-doc,
-                "size": $size
-            }
-        ))
+    It seems especially strange... as xmldb:get-child-resources
+    is able to read the collection entries without needing
+    read access on each document!
+    :)
+    if (sm:has-access(xs:anyURI($uri), "r--"))
+    then
+        let $collection-uri := ut:parent-path($uri)
+        let $doc-name := ut:last-path-component($uri)
+        let $last-modified := xmldb:last-modified($collection-uri, $doc-name)
+        let $media-type := xmldb:get-mime-type($uri)
+        let $is-binary-doc := util:is-binary-doc($uri)
+        let $size := xmldb:size($collection-uri, $doc-name)
+        return
+            map:merge((
+                exp:common-resource-properties($uri),
+                map {
+                    "created": xmldb:created($collection-uri, $doc-name),
+                    "lastModified": $last-modified,
+                    "mediaType": $media-type,
+                    "binaryDoc": $is-binary-doc,
+                    "size": $size
+                }
+            ))
+    else()
 };
 
 declare

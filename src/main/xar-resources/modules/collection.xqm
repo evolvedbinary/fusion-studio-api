@@ -37,6 +37,55 @@ declare function col:put($uri as xs:string) as xs:string {
             perr:error($perr:PD001, $uri)
 };
 
+
+declare function col:update-properties($uri as xs:string, $collection-properties as map(xs:string, item())) as xs:boolean {
+    if (xmldb:collection-available($uri)) then
+        if (sm:has-access(xs:anyURI($uri), "r--")
+            and ut:is-current-user(sm:get-permissions(xs:anyURI($uri))/sm:permission/@owner))
+        then
+            (: update collection properties :)
+            (
+                let $_ :=
+                    if ($collection-properties?mode)
+                    then
+                        sm:chmod(xs:anyURI($uri), $collection-properties?mode)
+                    else()
+                let $_ :=
+                    if ($collection-properties?acl)
+                    then
+                        let $_ := sm:clear-acl(xs:anyURI($uri))
+                        let $_ := array:for-each($collection-properties?acl, function($ace) {
+                            let $f := if ($ace?target eq "USER")
+                            then
+                                sm:add-user-ace#4
+                            else
+                                sm:add-group-ace#4
+                            return
+                                $f(xs:anyURI($uri), $ace?who, $ace?accessType eq "ALLOWED", $ace?mode)
+
+                        })
+                        return
+                            ()
+                    else()
+                let $_ :=
+                    if ($collection-properties?group)
+                    then
+                        sm:chgrp(xs:anyURI($uri), $collection-properties?group)
+                    else()
+                let $_ :=
+                    if ($collection-properties?owner)
+                    then
+                        sm:chown(xs:anyURI($uri), $collection-properties?owner)
+                    else()
+                return
+                    true()
+            )
+        else
+            perr:error($perr:PD001, $uri)
+    else
+        false()
+};
+
 declare function col:delete($uri as xs:string) as xs:boolean {
     if (xmldb:collection-available($uri))
     then

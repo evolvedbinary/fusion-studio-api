@@ -166,4 +166,13 @@ public class API {
                 || dockerTestImage.endsWith("existdb:5.0.0")
                 || dockerTestImage.endsWith("existdb:5.2.0");
     }
+
+    static boolean testServerHasBadXmldbSetMimeType() {
+        final String dockerTestImage = envVarOrDefault(ENV_VAR_DOCKER_TEST_IMAGE, null, envVarValue -> envVarValue);
+        if (dockerTestImage == null || dockerTestImage.isEmpty()) {
+            return false;
+        }
+
+        return dockerTestImage.endsWith("fusiondb-server:1.0.0-ALPHA2");
+    }
 }
