@@ -18,11 +18,11 @@ jobs:
         - DOCKER_TEST_IMAGE=repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly
       script: mvn verify -Ddocker.username=$FDB_NIGHTLY_DOCKER_USER -Ddocker.password=$FDB_NIGHTLY_DOCKER_PASS -Ddocker.test.port=$FS_API_PORT -Ddocker.test.image=$DOCKER_TEST_IMAGE -B
 
-    - name: Linux / FusionDB Server 1.0.0-ALPHA2
+    - name: Linux / FusionDB Server 1.0.0-ALPHA3
       os: linux
       env:
         - FS_API_PORT=4059
-        - DOCKER_TEST_IMAGE=repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:1.0.0-ALPHA2
+        - DOCKER_TEST_IMAGE=repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:1.0.0-ALPHA3
       script: mvn verify -Ddocker.username=$FDB_DOCKER_USER -Ddocker.password=$FDB_DOCKER_PASS -Ddocker.test.port=$FS_API_PORT -Ddocker.test.image=$DOCKER_TEST_IMAGE -B
 
     - name: Linux / eXist-db 5.0.0
