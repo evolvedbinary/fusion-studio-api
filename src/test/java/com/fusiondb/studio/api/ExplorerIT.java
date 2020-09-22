@@ -49,6 +49,30 @@ public class ExplorerIT {
     }
 
     @Test
+    public void noSuchCollection() {
+        when().
+                get(getApiBaseUri() + "/explorer?uri=/db/no-such-collection").
+        then().
+                statusCode(SC_FORBIDDEN);  //TODO(AR) should this be SC_NOT_FOUND?
+    }
+
+    @Test
+    public void noSuchXmlDocument() {
+        when().
+                get(getApiBaseUri() + "/explorer?uri=/db/no-such-document.xml").
+        then().
+                statusCode(SC_FORBIDDEN);  //TODO(AR) should this be SC_NOT_FOUND?
+    }
+
+    @Test
+    public void noSuchBinaryDocument() {
+        when().
+                get(getApiBaseUri() + "/explorer?uri=/db/no-such-document.bin").
+        then().
+                statusCode(SC_FORBIDDEN);  //TODO(AR) should this be SC_NOT_FOUND?
+    }
+
+    @Test
     public void invalidUri() {
         when().
                 get(getApiBaseUri() + "/explorer?uri=/invalid").

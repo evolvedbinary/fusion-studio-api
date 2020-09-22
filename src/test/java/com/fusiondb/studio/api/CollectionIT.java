@@ -17,6 +17,7 @@
  */
 package com.fusiondb.studio.api;
 
+import io.restassured.http.Header;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Test;
@@ -26,13 +27,12 @@ import java.util.Map;
 import static com.evolvedbinary.j8fu.tuple.Tuple.Tuple;
 import static com.fusiondb.studio.api.API.*;
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static io.restassured.http.ContentType.JSON;
-import static io.restassured.http.ContentType.XML;
-import static io.restassured.internal.RestAssuredResponseOptionsGroovyImpl.BINARY;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.http.HttpStatus.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.hamcrest.core.IsEqual.equalTo;
 
 public class CollectionIT {
 
@@ -114,6 +114,84 @@ public class CollectionIT {
                 body(matchesJsonSchemaInClasspath("collection-schema.json")).
         extract();
         assertEquals("rwxr-----", collectionResponse.jsonPath().getString("mode"));
+    }
+
+    @Test
+    public void copyCollection() {
+        final String collectionPath = "/db/fusion-studio-api-test-document-it-col-4";
+
+        // 1. create the source collection
+        ExtractableResponse<Response> collectionResponse = createCollection(collectionPath);
+        assertEquals(collectionPath, collectionResponse.jsonPath().getString("uri"));
+
+        // 2. copy the source collection
+        final String destCollectionPath = "/db/fusion-studio-api-test-document-it-col-4-copy";
+        collectionResponse = given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                header(new Header("x-fs-copy-source", collectionPath)).
+        when().
+                put(getApiBaseUri() + "/collection?uri=" + destCollectionPath).
+        then().
+                statusCode(SC_CREATED).
+        assertThat().
+                header("Content-Location", equalTo(destCollectionPath)).
+                body(matchesJsonSchemaInClasspath("collection-schema.json")).
+        extract();
+        assertEquals(destCollectionPath, collectionResponse.jsonPath().getString("uri"));
+
+        // 3. check the source collection still exists
+        when().
+                get(getApiBaseUri() + "/explorer?uri=" + collectionPath).
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body(matchesJsonSchemaInClasspath("collection-schema.json"));
+
+        // 4. check the destination collection, i.e. the copy, exists
+        when().
+                get(getApiBaseUri() + "/explorer?uri=" + destCollectionPath).
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body(matchesJsonSchemaInClasspath("collection-schema.json"));
+    }
+
+    @Test
+    public void moveCollection() {
+        final String collectionPath = "/db/fusion-studio-api-test-document-it-col-5";
+
+        // 1. create the source collection
+        ExtractableResponse<Response> collectionResponse = createCollection(collectionPath);
+        assertEquals(collectionPath, collectionResponse.jsonPath().getString("uri"));
+
+        // 2. move the source collection
+        final String destCollectionPath = "/db/fusion-studio-api-test-document-it-col-5-moved";
+        collectionResponse = given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                header(new Header("x-fs-move-source", collectionPath)).
+        when().
+                put(getApiBaseUri() + "/collection?uri=" + destCollectionPath).
+        then().
+                statusCode(SC_CREATED).
+        assertThat().
+                header("Content-Location", equalTo(destCollectionPath)).
+                body(matchesJsonSchemaInClasspath("collection-schema.json")).
+        extract();
+        assertEquals(destCollectionPath, collectionResponse.jsonPath().getString("uri"));
+
+        // 3. check the source collection no longer exists
+        when().
+                get(getApiBaseUri() + "/explorer?uri=" + collectionPath).
+        then().
+                statusCode(SC_FORBIDDEN);  //TODO(AR) should this be SC_NOT_FOUND?
+
+        // 4. check the destination collection, i.e. the moved collection, exists
+        when().
+                get(getApiBaseUri() + "/explorer?uri=" + destCollectionPath).
+        then().
+                statusCode(SC_OK).
+        assertThat().
+                body(matchesJsonSchemaInClasspath("collection-schema.json"));
     }
 
     private ExtractableResponse<Response> createCollection(final String path) {
