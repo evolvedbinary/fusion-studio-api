@@ -62,7 +62,10 @@ function api:version() {
                 "product-name": system:get-product-name(),
                 "version": system:get-version(),
                 "revision": system:get-revision(),
-                "build": system:get-build()
+                "build": system:get-build(),
+                "exist-db": map {
+                    "compatible-version": util:system-property("exist-db-compatible-version")
+                }
             }
         }
     )
