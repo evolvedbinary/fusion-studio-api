@@ -1,6 +1,9 @@
 version: 2.1
+executors:
 docker:
   - image: 'cimg/openjdk:8.0'
+  - parameters:
+            tag: '8.0'
 orbs:
   maven: circleci/maven@1.1.1
 
