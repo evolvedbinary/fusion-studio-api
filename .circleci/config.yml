@@ -1,9 +1,9 @@
 version: 2.1
 executors:
-docker:
-  - image: 'cimg/openjdk:8.0'
-  - parameters:
-            tag: '8.0'
+  j8:
+    docker:
+        - image: 'cimg/openjdk:8.0'
+
 orbs:
   maven: circleci/maven@1.1.1
 
@@ -11,6 +11,7 @@ workflows:
   maven_test:
     jobs:
       - maven/test:
+          executor: j8
           command: 'verify -Ddocker.test.port=$FS_API_PORT -Ddocker.test.image=$DOCKER_TEST_IMAGE -B'
 
       # mvn install -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V
