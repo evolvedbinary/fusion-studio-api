@@ -1,5 +1,8 @@
 version: 2.1
-
+executors:
+  j13:
+    docker:
+      - image: 'cimg/openjdk:8.0'
 orbs:
   maven: circleci/maven@1.1
 
@@ -7,3 +10,6 @@ workflows:
   maven_test:
     jobs:
       - maven/test
+
+      # mvn install -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+      # mvn verify -Ddocker.test.port=$FS_API_PORT -Ddocker.test.image=$DOCKER_TEST_IMAGE -B
