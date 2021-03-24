@@ -13,6 +13,11 @@ workflows:
       - maven/test:
           executor: j8
           command: 'verify -Ddocker.test.port=$FS_API_PORT -Ddocker.test.image=$DOCKER_TEST_IMAGE -B'
+          test_results_path: target/failsafe-reports
 
       # mvn install -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-      # mvn verify -Ddocker.test.port=$FS_API_PORT -Ddocker.test.image=$DOCKER_TEST_IMAGE -B
+      # TODO (DP): 
+      #   -  add env variables, and secrets in circle
+      #   -  configure dockerize https://circleci.com/docs/2.0/databases/#using-dockerize-to-wait-for-dependencies
+      # see https://github.com/evolvedbinary/fusion-studio-api/issues/30
+      # see https://circleci.com/developer/orbs/orb/circleci/maven orb config
