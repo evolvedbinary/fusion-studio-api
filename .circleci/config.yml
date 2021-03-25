@@ -30,7 +30,10 @@ commands:
         description: The TCP port number for the database server in the Docker Image
         type: integer
     steps:
-      - run: mvn verify -Ddocker.test.port=<< parameters.db_server_port >> -Ddocker.test.image=<< parameters.db_server_docker_image >> -B
+      - run:
+          environment:
+            FS_API_PORT: << parameters.db_server_port >>
+          command: mvn verify -Ddocker.test.port=<< parameters.db_server_port >> -Ddocker.test.image=<< parameters.db_server_docker_image >> -B
   verify_cmd_private_repo:
     parameters:
       db_server_docker_image:
@@ -44,7 +47,10 @@ commands:
       docker_pass:
         type: string
     steps:
-      - run: mvn verify -Ddocker.test.port=<< parameters.db_server_port >> -Ddocker.test.image=<< parameters.db_server_docker_image >> -Ddocker.username=<< parameters.docker_user >> -Ddocker.password=<< parameters.docker_pass >> -B
+      - run:
+          environment:
+            FS_API_PORT: << parameters.db_server_port >>
+          command: mvn verify -Ddocker.test.port=<< parameters.db_server_port >> -Ddocker.test.image=<< parameters.db_server_docker_image >> -Ddocker.username=<< parameters.docker_user >> -Ddocker.password=<< parameters.docker_pass >> -B
 
 executors:
   linux-executor:
