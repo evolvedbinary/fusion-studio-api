@@ -30,8 +30,11 @@ import static io.restassured.http.ContentType.BINARY;
 import static io.restassured.http.ContentType.JSON;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static net.javacrumbs.jsonunit.JsonMatchers.jsonEquals;
 import static org.apache.http.HttpStatus.*;
+import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 
 public class QueryIT {
 
@@ -276,7 +279,9 @@ public class QueryIT {
         then().
                 statusCode(SC_OK).
         assertThat().
-                body("results", is("{\"a\":\"b\",\"x\":[\"y\",\"z\"],\"t\":true,\"f\":false}"));
+                body("results", jsonEquals("{\"a\":\"b\",\"x\":[\"y\",\"z\"],\"t\":true,\"f\":false}")).
+                and().
+                body("results", not(containsString("\n")));
     }
 
     @Test
@@ -300,11 +305,10 @@ public class QueryIT {
         then().
                 statusCode(SC_OK).
         assertThat().
-                body("results", is("{\n" +
-                        "  \"a\" : \"b\",\n" +
-                        "  \"x\" : [ \"y\", \"z\" ],\n" +
-                        "  \"t\" : true,\n" +
-                        "  \"f\" : false\n" +
-                        "}"));
+                body("results", jsonEquals("{\"a\":\"b\",\"x\":[\"y\",\"z\"],\"t\":true,\"f\":false}")).
+                and().
+                body("results", containsString("{\n")).
+                and().
+                body("results", containsString("\n}"));
     }
 }
