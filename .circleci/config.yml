@@ -21,7 +21,19 @@ commands:
   build_cmd:
     steps:
       - run: mvn install -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V
-  verify_cmd_public_repo:
+  verify_fdb_nightly_cmd:
+    steps:
+      - run:
+          environment:
+            FS_API_PORT: 4059
+          command: mvn verify -Ddocker.test.port=4059 -Ddocker.test.image=repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly -Ddocker.username=$FDB_NIGHTLY_DOCKER_USER -Ddocker.password=$FDB_NIGHTLY_DOCKER_PASS -B
+  verify_fdb_release_cmd:
+    steps:
+      - run:
+          environment:
+            FS_API_PORT: 4059
+          command: mvn verify -Ddocker.test.port=4059 -Ddocker.test.image=repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:1.0.0-ALPHA3 -Ddocker.username=$FDB_DOCKER_USER -Ddocker.password=$FDB_DOCKER_PASS -B
+  verify_public_repo_cmd:
     parameters:
       db_server_docker_image:
         description: The identifier of a Docker Image which runs the database server
@@ -34,23 +46,6 @@ commands:
           environment:
             FS_API_PORT: << parameters.db_server_port >>
           command: mvn verify -Ddocker.test.port=<< parameters.db_server_port >> -Ddocker.test.image=<< parameters.db_server_docker_image >> -B
-  verify_cmd_private_repo:
-    parameters:
-      db_server_docker_image:
-        description: The identifier of a Docker Image which runs the database server
-        type: string
-      db_server_port:
-        description: The TCP port number for the database server in the Docker Image
-        type: integer
-      docker_user:
-        type: string
-      docker_pass:
-        type: string
-    steps:
-      - run:
-          environment:
-            FS_API_PORT: << parameters.db_server_port >>
-          command: mvn verify -Ddocker.test.port=<< parameters.db_server_port >> -Ddocker.test.image=<< parameters.db_server_docker_image >> -Ddocker.username=<< parameters.docker_user >> -Ddocker.password=<< parameters.docker_pass >> -B
 
 executors:
   linux-executor:
@@ -58,49 +53,43 @@ executors:
       image: ubuntu-2004:202101-01
 
 jobs:
-  build-and-verify-with-public-image:
-    parameters:
-      db_server_docker_image:
-        description: The identifier of a Docker Image which runs the database server
-        type: string
-      db_server_port:
-        description: The TCP port number for the database server in the Docker Image
-        type: integer
+  build-and-verify-with-fdb-nightly:
     executor: linux-executor
     steps:
       - checkout
       - restore_cache_cmd
       - build_cmd
-      - verify_cmd_public_repo:
-          db_server_docker_image: << parameters.db_server_docker_image >>
-          db_server_port: << parameters.db_server_port >>
+      - verify_fdb_nightly_cmd
       - save_cache_cmd
-#      - slack/notify:
-#          channel: dev
-#          event: fail
-#          template: basic_fail_1
-  build-and-verify-with-private-image:
+  #      - slack/notify:
+  #          channel: dev
+  #          event: fail
+  #          template: basic_fail_1
+  build-and-verify-with-fdb-release:
+    executor: linux-executor
+    steps:
+      - checkout
+      - restore_cache_cmd
+      - build_cmd
+      - verify_fdb_release_cmd
+      - save_cache_cmd
+    #      - slack/notify:
+    #          channel: dev
+    #          event: fail
+    #          template: basic_fail_1
+  build-and-verify-with-existdb:
     parameters:
-      db_server_docker_image:
-        description: The identifier of a Docker Image which runs the database server
-        type: string
-      db_server_port:
-        description: The TCP port number for the database server in the Docker Image
-        type: integer
-      docker_user:
-        type: string
-      docker_pass:
+      existdb_docker_image_version:
+        description: The version of the eXist-db Docker Image
         type: string
     executor: linux-executor
     steps:
       - checkout
       - restore_cache_cmd
       - build_cmd
-      - verify_cmd_private_repo:
-          db_server_docker_image: << parameters.db_server_docker_image >>
-          db_server_port: << parameters.db_server_port >>
-          docker_user: << parameters.docker_user >>
-          docker_pass: << parameters.docker_pass >>
+      - verify_public_repo_cmd:
+          db_server_docker_image: existdb/existdb:<< parameters.existdb_docker_image_version >>
+          db_server_port: 8080
       - save_cache_cmd
 #      - slack/notify:
 #          channel: dev
@@ -110,21 +99,14 @@ jobs:
 workflows:
   build-and-verify:
     jobs:
-      - build-and-verify-with-private-image:
+      - build-and-verify-with-fdb-nightly:
           name: "Build and Verify for FusionDB Nightly"
-          db_server_port: 4059
-          db_server_docker_image: "repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly"
-          docker_user: ${FDB_NIGHTLY_DOCKER_USER}
-          docker_pass: ${FDB_NIGHTLY_DOCKER_PASS}
-      - build-and-verify-with-private-image:
+          context: FusionDB_images
+      - build-and-verify-with-fdb-release:
           name: "Build and Verify for FusionDB 1.0.0-ALPHA3"
-          db_server_port: 4059
-          db_server_docker_image: "repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:1.0.0-ALPHA3"
-          docker_user: ${FDB_DOCKER_USER}
-          docker_pass: ${FDB_DOCKER_PASS}
-      - build-and-verify-with-public-image:
+          context: FusionDB_images
+      - build-and-verify-with-existdb:
           name: "Build and Verify for eXist-db"
-          db_server_port: 8080
           matrix:
             parameters:
-              db_server_docker_image: ["existdb/existdb:latest", "existdb/existdb:5.2.0", "existdb/existdb:5.0.0" ]
+              existdb_docker_image_version: ["latest", "5.2.0", "5.0.0" ]
