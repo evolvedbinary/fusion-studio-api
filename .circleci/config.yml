@@ -1,8 +1,13 @@
 version: 2.1
+
 executors:
   j8:
     docker:
         - image: 'cimg/openjdk:8.0'
+        - image: 'existdb/existdb:latest'
+          auth:
+            username: duncdrum
+            password: $DOCKER_TMP_PW
 
 orbs:
   maven: circleci/maven@1.1.1
@@ -14,6 +19,7 @@ workflows:
           executor: j8
           command: 'verify -Ddocker.test.port=$FS_API_PORT -Ddocker.test.image=$DOCKER_TEST_IMAGE -B'
           test_results_path: target/failsafe-reports
+   
 
       # mvn install -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V
       # TODO (DP): 
