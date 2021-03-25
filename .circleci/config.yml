@@ -1,0 +1,124 @@
+version: 2.1
+
+#orbs:
+#  slack: circleci/slack@4.3.1
+
+commands:
+  restore_cache_cmd:
+    steps:
+      - restore_cache:
+          keys:
+            # when lock file changes, use increasingly general patterns to restore cache
+            - maven-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
+            - maven-repo-v1-{{ .Branch }}-
+            - maven-repo-v1-
+  save_cache_cmd:
+    steps:
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: maven-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
+  build_cmd:
+    steps:
+      - run: mvn install -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V
+  verify_cmd_public_repo:
+    parameters:
+      db_server_docker_image:
+        description: The identifier of a Docker Image which runs the database server
+        type: string
+      db_server_port:
+        description: The TCP port number for the database server in the Docker Image
+        type: integer
+    steps:
+      - run: mvn verify -Ddocker.test.port=<< parameters.db_server_port >> -Ddocker.test.image=<< parameters.db_server_docker_image >> -B
+  verify_cmd_private_repo:
+    parameters:
+      db_server_docker_image:
+        description: The identifier of a Docker Image which runs the database server
+        type: string
+      db_server_port:
+        description: The TCP port number for the database server in the Docker Image
+        type: integer
+      docker_user:
+        type: string
+      docker_pass:
+        type: string
+    steps:
+      - run: mvn verify -Ddocker.test.port=<< parameters.db_server_port >> -Ddocker.test.image=<< parameters.db_server_docker_image >> -Ddocker.username=<< parameters.docker_user >> -Ddocker.password=<< parameters.docker_pass >> -B
+
+executors:
+  linux-executor:
+    machine:
+      image: ubuntu-2004:202101-01
+
+jobs:
+  build-and-verify-with-public-image:
+    parameters:
+      db_server_docker_image:
+        description: The identifier of a Docker Image which runs the database server
+        type: string
+      db_server_port:
+        description: The TCP port number for the database server in the Docker Image
+        type: integer
+    executor: linux-executor
+    steps:
+      - checkout
+      - restore_cache_cmd
+      - build_cmd
+      - verify_cmd_public_repo:
+          db_server_docker_image: << parameters.db_server_docker_image >>
+          db_server_port: << parameters.db_server_port >>
+      - save_cache_cmd
+#      - slack/notify:
+#          channel: dev
+#          event: fail
+#          template: basic_fail_1
+  build-and-verify-with-private-image:
+    parameters:
+      db_server_docker_image:
+        description: The identifier of a Docker Image which runs the database server
+        type: string
+      db_server_port:
+        description: The TCP port number for the database server in the Docker Image
+        type: integer
+      docker_user:
+        type: string
+      docker_pass:
+        type: string
+    executor: linux-executor
+    steps:
+      - checkout
+      - restore_cache_cmd
+      - build_cmd
+      - verify_cmd_private_repo:
+          db_server_docker_image: << parameters.db_server_docker_image >>
+          db_server_port: << parameters.db_server_port >>
+          docker_user: << parameters.docker_user >>
+          docker_pass: << parameters.docker_pass >>
+      - save_cache_cmd
+#      - slack/notify:
+#          channel: dev
+#          event: fail
+#          template: basic_fail_1
+
+workflows:
+  build-and-verify:
+    jobs:
+      - build-and-verify-with-private-image:
+          name: "Build and Verify for FusionDB Nightly"
+          db_server_port: 4059
+          db_server_docker_image: "repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly"
+          docker_user: ${FDB_NIGHTLY_DOCKER_USER}
+          docker_pass: ${FDB_NIGHTLY_DOCKER_PASS}
+      - build-and-verify-with-private-image:
+          name: "Build and Verify for FusionDB 1.0.0-ALPHA3"
+          db_server_port: 4059
+          db_server_docker_image: "repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:1.0.0-ALPHA3"
+          docker_user: ${FDB_DOCKER_USER}
+          docker_pass: ${FDB_DOCKER_PASS}
+      - build-and-verify-with-public-image:
+          name: "Build and Verify for eXist-db"
+          db_server_port: 8080
+          matrix:
+            parameters:
+              db_server_docker_image: ["existdb/existdb:latest", "existdb/existdb:5.2.0", "existdb/existdb:5.0.0" ]
