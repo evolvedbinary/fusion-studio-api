@@ -48,7 +48,9 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - test   
+      - test:
+          requires:
+                - build   
 
       # TODO (DP): 
       #   -  add env variables, and secrets in circle
