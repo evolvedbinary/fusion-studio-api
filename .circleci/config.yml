@@ -1,27 +1,55 @@
 version: 2.1
 
-executors:
-  j8:
+jobs:
+  build:
     docker:
-        - image: 'cimg/openjdk:8.0'
-        - image: 'existdb/existdb:latest'
-          auth:
-            username: duncdrum
-            password: $DOCKER_TMP_PW
-
-orbs:
-  maven: circleci/maven@1.1.1
+      - image: cimg/openjdk:8.0
+      - image: 'existdb/existdb:latest'
+        auth:
+          username: duncdrum
+          password: $DOCKER_TMP_PW
+      # - image: 'existdb/existdb:5.0.0'
+      #   auth:
+      #     username: duncdrum
+      #     password: $DOCKER_TMP_PW
+      # - image: 'existdb/existdb:5.2.0'
+      #   auth:
+      #     username: duncdrum
+      #     password: $DOCKER_TMP_PW        
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            # when lock file changes, use increasingly general patterns to restore cache
+            - maven-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
+            - maven-repo-v1-{{ .Branch }}-
+            - maven-repo-v1-
+      - save_cache:
+          paths:
+            - ~/.m2
+          key: maven-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
+      - run:
+          name: install
+          command: mvn -B -V -q -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true install  
+  test:
+    docker:
+      - image: cimg/openjdk:8.0
+      - image: 'existdb/existdb:latest'
+        auth:
+          username: duncdrum
+          password: $DOCKER_TMP_PW
+    steps:        
+      - run:
+          name: verify
+          command: mvn  -B -V -q -Ddocker.test.port=8080 -Ddocker.test.image=$DOCKER_TEST_IMAGE verify
 
 workflows:
-  maven_test:
+  version: 2.1
+  build-and-test:
     jobs:
-      - maven/test:
-          executor: j8
-          command: 'verify -Ddocker.test.port=$FS_API_PORT -Ddocker.test.image=$DOCKER_TEST_IMAGE -B'
-          test_results_path: target/failsafe-reports
-   
+      - build
+      - test   
 
-      # mvn install -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true -B -V
       # TODO (DP): 
       #   -  add env variables, and secrets in circle
       #   -  configure dockerize https://circleci.com/docs/2.0/databases/#using-dockerize-to-wait-for-dependencies
