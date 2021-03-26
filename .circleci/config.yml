@@ -4,10 +4,10 @@ jobs:
   build:
     docker:
       - image: cimg/openjdk:8.0
-      - image: 'existdb/existdb:latest'
-        auth:
-          username: duncdrum
-          password: $DOCKER_TMP_PW
+      # - image: 'existdb/existdb:latest'
+      #   auth:
+      #     username: duncdrum
+      #     password: $DOCKER_TMP_PW
       # - image: 'existdb/existdb:5.0.0'
       #   auth:
       #     username: duncdrum
@@ -24,24 +24,24 @@ jobs:
             - maven-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
             - maven-repo-v1-{{ .Branch }}-
             - maven-repo-v1-
+      - run:
+          name: install
+          command: mvn -B -V -q -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true install
       - save_cache:
           paths:
             - ~/.m2
-          key: maven-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}
-      - run:
-          name: install
-          command: mvn -B -V -q -Ddocker.skip=true -Dexec.skip=true -DskipTests=true -Dmaven.javadoc.skip=true install  
+          key: maven-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}            
   test:
     docker:
       - image: cimg/openjdk:8.0
-      - image: 'existdb/existdb:latest'
-        auth:
-          username: duncdrum
-          password: $DOCKER_TMP_PW
+      # - image: 'existdb/existdb:latest'
+      #   auth:
+      #     username: duncdrum
+      #     password: $DOCKER_TMP_PW
     steps:        
       - run:
           name: verify
-          command: mvn  -B -V -q -Ddocker.test.port=8080 -Ddocker.test.image=$DOCKER_TEST_IMAGE verify
+          command: mvn  -B -V -q -Ddocker.test.port=8080 -Ddocker.test.image=existdb/existdb:latest verify
 
 workflows:
   version: 2.1
