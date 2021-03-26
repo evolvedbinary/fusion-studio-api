@@ -4,10 +4,10 @@ jobs:
   build:
     docker:
       - image: cimg/openjdk:8.0
-      # - image: 'existdb/existdb:latest'
-      #   auth:
-      #     username: duncdrum
-      #     password: $DOCKER_TMP_PW
+      - image: 'existdb/existdb:latest'
+        auth:
+          username: duncdrum
+          password: $DOCKER_TMP_PW
       # - image: 'existdb/existdb:5.0.0'
       #   auth:
       #     username: duncdrum
