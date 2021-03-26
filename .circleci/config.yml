@@ -31,14 +31,14 @@ jobs:
           paths:
             - ~/.m2
           key: maven-repo-v1-{{ .Branch }}-{{ checksum "pom.xml" }}            
-  test:
-    docker:
-      - image: cimg/openjdk:8.0
+  # test:
+  #   docker:
+  #     - image: cimg/openjdk:8.0
       # - image: 'existdb/existdb:latest'
       #   auth:
       #     username: duncdrum
       #     password: $DOCKER_TMP_PW
-    steps:        
+    # steps:        
       - run:
           name: verify
           command: mvn  -B -V -q -Ddocker.test.port=8080 -Ddocker.test.image=existdb/existdb:latest verify
@@ -48,9 +48,9 @@ workflows:
   build-and-test:
     jobs:
       - build
-      - test:
-          requires:
-                - build   
+      # - test:
+      #     requires:
+      #           - build   
 
       # TODO (DP): 
       #   -  add env variables, and secrets in circle
