@@ -4,10 +4,10 @@ jobs:
   build:
     docker:
       - image: cimg/openjdk:8.0
-      - image: 'existdb/existdb:latest'
-        auth:
-          username: duncdrum
-          password: $DOCKER_TMP_PW
+      # - image: 'existdb/existdb:latest'
+      #   auth:
+      #     username: duncdrum
+      #     password: $DOCKER_TMP_PW
       # - image: 'existdb/existdb:5.0.0'
       #   auth:
       #     username: duncdrum
@@ -44,7 +44,7 @@ jobs:
           # docker_layer_caching: true      
       - run:
           name: verify
-          command: mvn  -B -V -q -Ddocker.test.port=8080 -Ddocker.test.image=existdb/existdb:latest verify
+          command: mvn  -B -V -Ddocker.test.port=8080 -Ddocker.test.image=existdb/existdb:latest verify
 
 workflows:
   version: 2.1
