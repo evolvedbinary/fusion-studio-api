@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
 
@@ -35,8 +36,8 @@
         <url>https://github.com/evolvedbinary/fusion-studio-api.git</url>
         <connection>scm:git:https://github.com/evolvedbinary/fusion-studio-api.git</connection>
         <developerConnection>scm:git:https://github.com/evolvedbinary/fusion-studio-api.git</developerConnection>
-      <tag>HEAD</tag>
-  </scm>
+        <tag>HEAD</tag>
+    </scm>
 
     <issueManagement>
         <system>GitHub</system>
@@ -182,6 +183,13 @@
                             <name>${docker.test.image}</name>
                             <run>
                                 <ports>${docker.test.port}:${docker.test.port}</ports>
+                                <net>host</net>
+                                <!-- <network>
+                                    <mode>custom</mode>
+                                    <name>my-network</name>
+                                    <alias>circleci-internal-outer-build-agent</alias>
+                                    <alias>box2</alias>
+                                </network> -->
                                 <wait>
                                     <log>Server has started, listening on</log>
                                     <time>120000</time>
@@ -335,7 +343,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-release-plugin</artifactId>
                 <configuration>
-                    <mavenExecutorId>forked-path</mavenExecutorId> <!-- avoid a bug with GPG plugin hanging http://jira.codehaus.org/browse/MGPG-9 -->
+                    <mavenExecutorId>forked-path</mavenExecutorId>                    <!-- avoid a bug with GPG plugin hanging http://jira.codehaus.org/browse/MGPG-9 -->
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>@{project.version}</tagNameFormat>
                 </configuration>
