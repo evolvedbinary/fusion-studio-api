@@ -41,7 +41,14 @@ jobs:
     # steps:
       - setup_remote_docker:
           version: 20.10.2
-          # docker_layer_caching: true      
+          docker_layer_caching: false
+      - run:
+          name: install and deploy xar
+          command: |
+            docker create -v /xars --name pkg alpine:3.4 /bin/true
+            docker cp target/fusion-*.xar pkg:/xars
+            docker run --volumes-from pkg existdb/existdb:latest        
+          background: true
       - run:
           name: verify
           command: mvn  -B -V -Ddocker.test.port=8080 -Ddocker.test.image=existdb/existdb:latest verify
