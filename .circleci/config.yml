@@ -38,7 +38,10 @@ jobs:
       #   auth:
       #     username: duncdrum
       #     password: $DOCKER_TMP_PW
-    # steps:        
+    # steps:
+      - setup_remote_docker:
+          version: 20.10.2
+          # docker_layer_caching: true      
       - run:
           name: verify
           command: mvn  -B -V -q -Ddocker.test.port=8080 -Ddocker.test.image=existdb/existdb:latest verify
