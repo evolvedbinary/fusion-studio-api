@@ -183,13 +183,13 @@
                             <name>${docker.test.image}</name>
                             <run>
                                 <ports>${docker.test.port}:${docker.test.port}</ports>
-                                <net>host</net>
-                                <!-- <network>
-                                    <mode>custom</mode>
-                                    <name>my-network</name>
+                                <!-- <net>host</net> -->
+                                <network>
+                                    <mode>container</mode>
+                                    <name>db-with-api</name>
                                     <alias>circleci-internal-outer-build-agent</alias>
                                     <alias>box2</alias>
-                                </network> -->
+                                </network>
                                 <wait>
                                     <log>Server has started, listening on</log>
                                     <time>120000</time>
