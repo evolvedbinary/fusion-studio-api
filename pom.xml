@@ -54,8 +54,9 @@
         <exist.version>5.0.0</exist.version>
 
         <!-- used for integration-test -->
-        <docker.test.image>repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly</docker.test.image>
-        <docker.test.port>4059</docker.test.port>
+        <docker.db.image>repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly</docker.db.image>
+        <api.host>localhost</api.host>
+        <api.port>4059</api.port>
 
         <!-- used in the EXPath Package Descriptor -->
         <package-name>https://fusiondb.com/studio/api</package-name>
@@ -186,9 +187,11 @@
                     <images>
                         <image>
                             <alias>db-with-api</alias>
-                            <name>${docker.test.image}</name>
+                            <name>${docker.db.image}</name>
                             <run>
-                                <ports>${docker.test.port}:${docker.test.port}</ports>
+                                <ports>
+                                    <port>${api.port}:${api.port}</port>
+                                </ports>
                                 <wait>
                                     <log>Server has started, listening on</log>
                                     <time>120000</time>
@@ -238,7 +241,7 @@
                                 <argument>Content-Type: application/octet-stream</argument>
                                 <argument>--data-binary</argument>
                                 <argument>@${project.build.directory}/${package-final-name}.xar</argument>
-                                <argument>http://admin:@localhost:${docker.test.port}/exist/rest/db/${package-final-name}.xar</argument>
+                                <argument>http://admin:@${api.host}:${api.port}/exist/rest/db/${package-final-name}.xar</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -259,7 +262,7 @@
                                 <argument>Content-Type: application/xml</argument>
                                 <argument>--data-binary</argument>
                                 <argument>@${project.build.testOutputDirectory}/deploy-xar.xq.xml</argument>
-                                <argument>http://admin:@localhost:${docker.test.port}/exist/rest/db/</argument>
+                                <argument>http://admin:@${api.host}:${api.port}/exist/rest/db/</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -277,6 +280,9 @@
                         <goals>
                             <goal>integration-test</goal>
                         </goals>
+                        <configuration>
+                            <argLine>-Dapi.port=@{api.port}</argLine>
+                        </configuration>
                     </execution>
                     <execution>
                         <id>verify-integration-tests-result</id>

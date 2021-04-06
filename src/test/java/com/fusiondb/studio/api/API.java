@@ -52,33 +52,53 @@ public class API {
     public static String DEFAULT_ENDPOINT = "fusiondb";
 
     /**
+     * System Property for setting the API Host
+     */
+    public static String SYS_PROP_NAME_API_HOST = "api.host";
+
+    /**
      * Environment variable name for setting the API Host
      */
-    public static String ENV_VAR_FS_API_HOST = "FS_API_HOST";
+    public static String ENV_VAR_API_HOST = "API_HOST";
+
+    /**
+     * System Property for setting the API Port
+     */
+    public static String SYS_PROP_NAME_API_PORT = "api.port";
 
     /**
      * Environment variable name for setting the API Port
      */
-    public static String ENV_VAR_FS_API_PORT = "FS_API_PORT";
+    public static String ENV_VAR_API_PORT = "API_PORT";
 
-    private static String ENV_VAR_DOCKER_TEST_IMAGE = "DOCKER_TEST_IMAGE";
+    /**
+     * System Property for setting the Docker DB Image
+     */
+    public static String SYS_PROP_NAME_DOCKER_DB_IMAGE = "docker.db.image";
+
+    /**
+     * Environment Variable for setting the Docker DB Image
+     */
+    private static String ENV_VAR_DOCKER_DB_IMAGE = "DOCKER_DB_IMAGE";
 
     /**
      * Get the Base URI for the Fusion Studio API.
      *
-     * The URI can be overridden by environment variables
-     * see {@link #ENV_VAR_FS_API_HOST} and {@link #ENV_VAR_FS_API_PORT}.
+     * The URI can be overridden by System Properties firstly,
+     * or Environment Variables secondly.
+     * See {@link #SYS_PROP_NAME_API_HOST} {@link #SYS_PROP_NAME_API_PORT}
+     * {@link #ENV_VAR_API_HOST} and {@link #ENV_VAR_API_PORT}.
      *
      * @return the base URI
      */
     public static String getApiBaseUri() {
-        final String host = envVarOrDefault(ENV_VAR_FS_API_HOST, DEFAULT_HOST, envVarValue -> envVarValue);
-        final int port = envVarOrDefault(ENV_VAR_FS_API_PORT, DEFAULT_PORT, envVarValue -> {
+        final String host = sysPropOrEnvVarOrDefault(SYS_PROP_NAME_API_HOST, ENV_VAR_API_HOST, DEFAULT_HOST, envVarValue -> envVarValue);
+        final int port = sysPropOrEnvVarOrDefault(SYS_PROP_NAME_API_PORT, ENV_VAR_API_PORT, DEFAULT_PORT, envVarValue -> {
             try {
                 return Integer.parseInt(envVarValue);
             } catch (final NumberFormatException e) {
                 // invalid number
-                System.err.println("ENV.FS_API_PORT=" + envVarValue + ", is not a valid TCP port number. Using default: " + DEFAULT_PORT);
+                System.err.println("Port " + envVarValue + " is not a valid TCP port number. Using default: " + DEFAULT_PORT);
                 e.printStackTrace();
                 return DEFAULT_PORT;
             }
@@ -90,19 +110,21 @@ public class API {
     /**
      * Get the Base URI for the eXist-db REST API.
      *
-     * The URI can be overridden by environment variables
-     * see {@link #ENV_VAR_FS_API_HOST} and {@link #ENV_VAR_FS_API_PORT}.
+     * The URI can be overridden by System Properties firstly,
+     * or Environment Variables secondly.
+     * See {@link #SYS_PROP_NAME_API_HOST} {@link #SYS_PROP_NAME_API_PORT}
+     * {@link #ENV_VAR_API_HOST} and {@link #ENV_VAR_API_PORT}.
      *
      * @return the REST base URI
      */
     public static String getRestApiBaseUri() {
-        final String host = envVarOrDefault(ENV_VAR_FS_API_HOST, DEFAULT_HOST, envVarValue -> envVarValue);
-        final int port = envVarOrDefault(ENV_VAR_FS_API_PORT, DEFAULT_PORT, envVarValue -> {
+        final String host = sysPropOrEnvVarOrDefault(SYS_PROP_NAME_API_HOST, ENV_VAR_API_HOST, DEFAULT_HOST, envVarValue -> envVarValue);
+        final int port = sysPropOrEnvVarOrDefault(SYS_PROP_NAME_API_PORT, ENV_VAR_API_PORT, DEFAULT_PORT, envVarValue -> {
             try {
                 return Integer.parseInt(envVarValue);
             } catch (final NumberFormatException e) {
                 // invalid number
-                System.err.println("ENV.FS_API_PORT=" + envVarValue + ", is not a valid TCP port number. Using default: " + DEFAULT_PORT);
+                System.err.println("Port " + envVarValue + " is not a valid TCP port number. Using default: " + DEFAULT_PORT);
                 e.printStackTrace();
                 return DEFAULT_PORT;
             }
@@ -131,6 +153,48 @@ public class API {
         }
     }
 
+    /**
+     * Gets a value from a System Property or uses the default
+     * if there is no such variable.
+     *
+     * @param sysPropName the name of the system property.
+     * @param defaultValue the default value to use if there is no system property
+     * @param typeConverter a function for converting the value of the system
+     *     property (if present) to the desired type
+     *
+     * @return the value from the system property, or the default value
+     */
+    private static <T> T sysPropOrDefault(final String sysPropName, final T defaultValue, final Function<String, T> typeConverter) {
+        final String sysPropValue = System.getProperty(sysPropName);
+        if (sysPropValue != null && !sysPropValue.isEmpty()) {
+            return typeConverter.apply(sysPropValue);
+        } else {
+            return defaultValue;
+        }
+    }
+
+    /**
+     * Gets a value from a System Property, or an Environment Variable if there
+     * is not such system property. If there is no environment variable, then
+     * the default value is returned.
+     *
+     * @param sysPropName the name of the system property.
+     * @param envVarName the name of the environment variable if there is no system property.
+     * @param defaultValue the default value to use if there is no system property or environment variable.
+     * @param typeConverter a function for converting the value of the system
+     *     property or environment variable (if present) to the desired type
+     *
+     * @return the value from the system property, environment variable, or the default value
+     */
+    private static <T> T sysPropOrEnvVarOrDefault(final String sysPropName, final String envVarName,
+            final T defaultValue, final Function<String, T> typeConverter) {
+        final T sysPropValue = sysPropOrDefault(sysPropName, null, typeConverter);
+        if (sysPropValue != null) {
+            return sysPropValue;
+        }
+        return envVarOrDefault(envVarName, defaultValue, typeConverter);
+    }
+
     static <K, V> Map<K, V> mapOf(final Tuple2<K, V>... entries) {
         if (entries == null) {
             return Collections.emptyMap();
@@ -157,7 +221,7 @@ public class API {
     }
 
     static boolean testServerHasBadJsonSerialization() {
-        final String dockerTestImage = envVarOrDefault(ENV_VAR_DOCKER_TEST_IMAGE, null, envVarValue -> envVarValue);
+        final String dockerTestImage = sysPropOrEnvVarOrDefault(SYS_PROP_NAME_DOCKER_DB_IMAGE, ENV_VAR_DOCKER_DB_IMAGE, null, envVarValue -> envVarValue);
         if (dockerTestImage == null || dockerTestImage.isEmpty()) {
             return false;
         }
@@ -168,7 +232,7 @@ public class API {
     }
 
     static boolean testServerHasBadXmldbSetMimeType() {
-        final String dockerTestImage = envVarOrDefault(ENV_VAR_DOCKER_TEST_IMAGE, null, envVarValue -> envVarValue);
+        final String dockerTestImage = sysPropOrEnvVarOrDefault(SYS_PROP_NAME_DOCKER_DB_IMAGE, ENV_VAR_DOCKER_DB_IMAGE, null, envVarValue -> envVarValue);
         if (dockerTestImage == null || dockerTestImage.isEmpty()) {
             return false;
         }
