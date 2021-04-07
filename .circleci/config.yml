@@ -3,7 +3,7 @@ version: 2.1
 # TODO(DP): lets prune this see #30 #36 #35 
 # matrix:
 #   parameters: 
-#     image_tag: ['latest', '5.0.0', '5.2.0', 'nightly', '1.0.0-ALPHA3']
+#     image_tag: ['latest', '5.0.0', '5.2.0', 'nightly']
 #     image_name: ['existdb/existdb', 'evolvedbinary/fusiondb-server']
 #     image_port: ['4059', '8080']
 #     repo: ['repo.evolvedbinary.com:9543', 'repo.evolvedbinary.com:9443', 'default']
@@ -31,8 +31,8 @@ workflows:
                 - 'verify -B -q -Dapi.port=8080 -Ddocker.db.image=existdb/existdb:latest'
                 - 'verify -B -q -Dapi.port=8080 -Ddocker.db.image=existdb/existdb:5.2.0'
                 - 'verify -B -q -Dapi.port=8080 -Ddocker.db.image=existdb/existdb:5.0.0'
-                # - 'verify -B -q -Ddocker.username=$FDB_NIGHTLY_DOCKER_USER -Ddocker.password=$FDB_NIGHTLY_DOCKER_PASS -Ddocker.test.port=4059 -Ddocker.test.image=$repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly'
-                # - 'verify -B -q -Ddocker.username=$FDB_DOCKER_USER -Ddocker.password=$FDB_DOCKER_PASS -Ddocker.test.port=4059 -Ddocker.test.image=$repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:1.0.0-ALPHA3'
+                - 'verify -B -q -Ddocker.username=$FDB_NIGHTLY_DOCKER_USER -Ddocker.password=$FDB_NIGHTLY_DOCKER_PASS'
+                - 'verify -B -q -Ddocker.username=$FDB_DOCKER_USER -Ddocker.password=$FDB_DOCKER_PASS -Ddocker.db.image=repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:latest'
           executor: 'xenial'    
           context: FusionDB_images
           test_results_path: target/failsafe-reports
