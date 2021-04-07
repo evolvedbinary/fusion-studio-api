@@ -190,7 +190,7 @@
                             <name>${docker.db.image}</name>
                             <run>
                                 <ports>
-                                    <port>${api.port}:${api.port}</port>
+                                    <ports>host.port:${api.port}</ports>
                                 </ports>
                                 <wait>
                                     <log>Server has started, listening on</log>
@@ -241,7 +241,7 @@
                                 <argument>Content-Type: application/octet-stream</argument>
                                 <argument>--data-binary</argument>
                                 <argument>@${project.build.directory}/${package-final-name}.xar</argument>
-                                <argument>http://admin:@${api.host}:${api.port}/exist/rest/db/${package-final-name}.xar</argument>
+                                <argument>http://admin:@${api.host}:${host.port}/exist/rest/db/${package-final-name}.xar</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -262,7 +262,7 @@
                                 <argument>Content-Type: application/xml</argument>
                                 <argument>--data-binary</argument>
                                 <argument>@${project.build.testOutputDirectory}/deploy-xar.xq.xml</argument>
-                                <argument>http://admin:@${api.host}:${api.port}/exist/rest/db/</argument>
+                                <argument>http://admin:@${api.host}:${host.port}/exist/rest/db/</argument>
                             </arguments>
                         </configuration>
                     </execution>
@@ -281,7 +281,7 @@
                             <goal>integration-test</goal>
                         </goals>
                         <configuration>
-                            <argLine>-Dapi.port=@{api.port}</argLine>
+                            <argLine>-Dapi.port=@{host.port}</argLine>
                         </configuration>
                     </execution>
                     <execution>
