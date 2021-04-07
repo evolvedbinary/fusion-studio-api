@@ -56,7 +56,8 @@
         <!-- used for integration-test -->
         <docker.db.image>repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly</docker.db.image>
         <api.host>localhost</api.host>
-        <api.port>4059</api.port>
+        <image.tag>:latest</image.tag>
+        <!-- <api.port>4059</api.port> -->
 
         <!-- used in the EXPath Package Descriptor -->
         <package-name>https://fusiondb.com/studio/api</package-name>
@@ -186,11 +187,37 @@
                     <verbose>true</verbose>
                     <images>
                         <image>
-                            <alias>db-with-api</alias>
-                            <name>${docker.db.image}</name>
+                            <alias>exist</alias>
+                            <name>existdb/existdb${image.tag}</name>
                             <run>
                                 <ports>
-                                    <ports>host.port:${api.port}</ports>
+                                    <ports>host.port:8080</ports>
+                                </ports>
+                                <wait>
+                                    <log>Server has started, listening on</log>
+                                    <time>120000</time>
+                                </wait>
+                            </run>
+                        </image>
+                        <image>
+                            <alias>FDB_nightly</alias>
+                            <name>repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly</name>
+                            <run>
+                                <ports>
+                                    <ports>host.port:4059</ports>
+                                </ports>
+                                <wait>
+                                    <log>Server has started, listening on</log>
+                                    <time>120000</time>
+                                </wait>
+                            </run>
+                        </image>
+                        <image>
+                            <alias>FDB</alias>
+                            <name>repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:latest</name>
+                            <run>
+                                <ports>
+                                    <ports>host.port:4059</ports>
                                 </ports>
                                 <wait>
                                     <log>Server has started, listening on</log>
