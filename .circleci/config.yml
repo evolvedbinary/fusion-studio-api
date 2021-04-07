@@ -1,14 +1,5 @@
 version: 2.1
 
-# TODO(DP): lets prune this see #30 #36 #35 
-# matrix:
-#   parameters: 
-#     image_tag: ['latest', '5.0.0', '5.2.0', 'nightly']
-#     image_name: ['existdb/existdb', 'evolvedbinary/fusiondb-server']
-#     image_port: ['4059', '8080']
-#     repo: ['repo.evolvedbinary.com:9543', 'repo.evolvedbinary.com:9443', 'default']
-
-
 # xenial uses Java 8 by default we need a VM executor for now
 executors:
   xenial:
