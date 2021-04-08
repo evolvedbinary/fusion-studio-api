@@ -67,3 +67,12 @@ or, if you need to set system properties you can do so like (e.g. for testing ag
 ```
 $ mvn clean verify -Dapi.port=8080 -Ddocker.db.image=existdb/existdb:5.2.0
 ```
+
+
+<!-- docker.startParallel to run all in parallel locally
+     document 
+        <api.host>localhost</api.host>      
+        <repo.port>9543</repo.port>
+        <fdb.tag>nightly</fdb.tag>
+        <exist.tag>latest</exist.tag>
+ -->

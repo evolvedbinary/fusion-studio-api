@@ -19,11 +19,11 @@ workflows:
           matrix:
             parameters:
               command: 
-                - 'verify -B -q -Dapi.port=8080 -Ddocker.db.image=existdb/existdb:latest'
-                - 'verify -B -q -Dapi.port=8080 -Ddocker.db.image=existdb/existdb:5.2.0'
-                - 'verify -B -q -Dapi.port=8080 -Ddocker.db.image=existdb/existdb:5.0.0'
+                - 'verify -B -q -Ddocker.image.alias=exist'
+                - 'verify -B -q -Ddocker.image.alias=exist -Dexist.tag=5.2.0'
+                - 'verify -B -q -Ddocker.image.alias=exist -Dexist.tag=5.0.0'
                 - 'verify -B -q -Ddocker.username=$FDB_NIGHTLY_DOCKER_USER -Ddocker.password=$FDB_NIGHTLY_DOCKER_PASS'
-                - 'verify -B -q -Ddocker.username=$FDB_DOCKER_USER -Ddocker.password=$FDB_DOCKER_PASS -Ddocker.db.image=repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:latest'
+                - 'verify -B -q -Ddocker.username=$FDB_DOCKER_USER -Ddocker.password=$FDB_DOCKER_PASS -Ddocker.image.alias=fusiondb -Drepo.port=9443'
           executor: 'xenial'    
           context: FusionDB_images
           test_results_path: target/failsafe-reports

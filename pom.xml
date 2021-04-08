@@ -54,10 +54,11 @@
         <exist.version>5.0.0</exist.version>
 
         <!-- used for integration-test -->
-        <docker.db.image>repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly</docker.db.image>
         <api.host>localhost</api.host>
-        <image.tag>:latest</image.tag>
-        <!-- <api.port>4059</api.port> -->
+        <!-- Two repos: nightly = 9543, release = 9443 -->
+        <repo.port>9543</repo.port>
+        <fdb.tag>nightly</fdb.tag>
+        <exist.tag>latest</exist.tag>
 
         <!-- used in the EXPath Package Descriptor -->
         <package-name>https://fusiondb.com/studio/api</package-name>
@@ -187,8 +188,11 @@
                     <verbose>true</verbose>
                     <images>
                         <image>
+                            <!-- TODO(DP): see #37 
+                            https://dmp.fabric8.io/#docker:copy 
+                            -->
                             <alias>exist</alias>
-                            <name>existdb/existdb${image.tag}</name>
+                            <name>existdb/existdb:${exist.tag}</name>
                             <run>
                                 <ports>
                                     <ports>host.port:8080</ports>
@@ -196,12 +200,14 @@
                                 <wait>
                                     <log>Server has started, listening on</log>
                                     <time>120000</time>
+                                    <!-- Enable for debugging -->
+                                    <!-- <healthy>true</healthy> -->
                                 </wait>
                             </run>
                         </image>
                         <image>
-                            <alias>FDB_nightly</alias>
-                            <name>repo.evolvedbinary.com:9543/evolvedbinary/fusiondb-server:nightly</name>
+                            <alias>fusiondb</alias>
+                            <name>repo.evolvedbinary.com:${repo.port}/evolvedbinary/fusiondb-server:${fdb.tag}</name>
                             <run>
                                 <ports>
                                     <ports>host.port:4059</ports>
@@ -209,19 +215,8 @@
                                 <wait>
                                     <log>Server has started, listening on</log>
                                     <time>120000</time>
-                                </wait>
-                            </run>
-                        </image>
-                        <image>
-                            <alias>FDB</alias>
-                            <name>repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:latest</name>
-                            <run>
-                                <ports>
-                                    <ports>host.port:4059</ports>
-                                </ports>
-                                <wait>
-                                    <log>Server has started, listening on</log>
-                                    <time>120000</time>
+                                    <!-- Enable for debugging -->
+                                    <!-- <healthy>true</healthy> -->
                                 </wait>
                             </run>
                         </image>
@@ -246,6 +241,7 @@
             </plugin>
 
             <!-- Upload and deploy latest XAR build of API to Server (inside Docker) for integration-test -->
+            <!-- TODO(DP):see #37 -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>

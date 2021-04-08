@@ -77,7 +77,6 @@ nb-configuration.xml
 ##############################
 .vscode/
 .code-workspace
-.vscode/
 
 ##############################
 ## OS X
