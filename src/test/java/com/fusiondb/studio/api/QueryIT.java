@@ -260,7 +260,7 @@ public class QueryIT {
 
     @Test
     public void serializeQueryAsJsonNoIndent() {
-        Assumptions.assumeFalse(testServerHasBadJsonSerialization());
+        Assumptions.assumeFalse(testServerHasBadJsonSerialization(), "Server has bad JSON serialization");
 
         final Map<String, Object> requestBody = mapOf(
                 Tuple("query", "map {'a': 'b', 'x': ['y', 'z'], 't': true(), 'f': false() }"),
@@ -286,7 +286,7 @@ public class QueryIT {
 
     @Test
     public void serializeQueryAsJsonIndent() {
-        Assumptions.assumeFalse(testServerHasBadJsonSerialization());
+        Assumptions.assumeFalse(testServerHasBadJsonSerialization(), "Server has bad JSON serialization");
 
         final Map<String, Object> requestBody = mapOf(
                 Tuple("query", "map {'a': 'b', 'x': ['y', 'z'], 't': true(), 'f': false() }"),

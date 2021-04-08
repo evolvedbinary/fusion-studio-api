@@ -20,6 +20,7 @@ package com.fusiondb.studio.api;
 import io.restassured.http.Header;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -147,6 +148,8 @@ public class CollectionIT {
 
     @Test
     public void copyCollection() {
+        Assumptions.assumeFalse(testServerHasBadCopyMoveCollectionOperations(), "Server has bad copy/move operations");
+
         final String collectionPath = "/db/fusion-studio-api-test-document-it-col-4";
 
         // 1. create the source collection
@@ -187,6 +190,8 @@ public class CollectionIT {
 
     @Test
     public void moveCollection() {
+        Assumptions.assumeFalse(testServerHasBadCopyMoveCollectionOperations(),"Server has bad copy/move operations");
+
         final String collectionPath = "/db/fusion-studio-api-test-document-it-col-5";
 
         // 1. create the source collection
