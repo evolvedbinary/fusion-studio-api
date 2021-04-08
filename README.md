@@ -1,5 +1,5 @@
 # Fusion Studio API
-[![Build Status](https://travis-ci.com/evolvedbinary/fusion-studio-api.svg?branch=master)](https://travis-ci.com/evolvedbinary/fusion-studio-api)
+[![CircleCI Status](https://circleci.com/gh/evolvedbinary/fusion-studio-api.svg?style=svg)](https://circleci.com/gh/evolvedbinary/fusion-studio-api)
 [![License](https://img.shields.io/badge/license-AGPL%203-blue.svg)](https://opensource.org/licenses/AGPL-3.0)
 
 Server Side API for [Fusion Studio](https://github.com/evolvedbinary/fusion-studio) written in RESTXQ and XQuery.
@@ -41,9 +41,8 @@ Various settings of the build can be overridden using the following System Prope
 | Host for Fusion Studio API | `api.host` | `API_HOST` |
 | Port for Fusion Studio API | `api.port` | `API_PORT` |
 
-**NOTE:** If you wish to use the FusionDB Nightly Build Docker Container, you must configure your username and password for the
-repository in either your Maven Settings file (`~/.m2/settings.xml`), or provide the values via System Properties (see above).
-For the Maven Settings file, the following should be added to the `<servers>` section:
+**NOTE:** FusionDB nightly images and release images are hosted by separated repos. To test against both you need 2 sets of credentials to log into two private registries. You can configure your username and password for the repository in either your Maven Settings file (`~/.m2/settings.xml`), or provide the values via System Properties (see above).
+For the Maven Settings file, the following should be added to the `<servers>` section for `:nightly` images:
 ```xml
 <server>
     <id>repo.evolvedbinary.com:9543</id>
