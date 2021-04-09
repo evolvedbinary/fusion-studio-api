@@ -219,6 +219,30 @@ public class CollectionIT {
                 body(matchesJsonSchemaInClasspath("collection-schema.json"));
     }
 
+    @Test
+    public void deleteCollection() {
+        final String collectionPath = "/db/fusion-studio-api-test-document-it-col-6";
+
+        // 1. create a collection
+        ExtractableResponse<Response> collectionResponse = createCollection(collectionPath);
+        assertEquals(collectionPath, collectionResponse.jsonPath().getString("uri"));
+
+        // 2. delete the collection
+        given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                header(new Header("x-fs-move-source", collectionPath)).
+        when().
+                delete(getApiBaseUri() + "/collection?uri=" + collectionPath).
+        then().
+                statusCode(SC_NO_CONTENT);
+
+        // 3. check the collection no longer exists
+        when().
+                get(getApiBaseUri() + "/explorer?uri=" + collectionPath).
+        then().
+                statusCode(SC_FORBIDDEN);  //TODO(AR) should this be SC_NOT_FOUND?
+    }
+
     private ExtractableResponse<Response> createCollection(final String path) {
         return
                 given().
