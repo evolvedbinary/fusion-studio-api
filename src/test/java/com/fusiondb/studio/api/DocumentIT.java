@@ -33,6 +33,7 @@ import static io.restassured.internal.RestAssuredResponseOptionsGroovyImpl.BINAR
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.http.HttpStatus.*;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DocumentIT {
@@ -44,6 +45,37 @@ public class DocumentIT {
         final ExtractableResponse<Response> documentResponse = createXml(docPath, "<time>" + now + "</time>");
         assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
         assertFalse(documentResponse.jsonPath().getBoolean("binaryDoc"));
+        readDocument(docPath);
+    }
+
+    @Test
+    public void createXmlWithSpaceInName() {
+        final String docPath = "/db/fusion-studio-api-test-document-it 2.xml";
+        final long now = System.currentTimeMillis();
+        final ExtractableResponse<Response> documentResponse = createXml(docPath, "<time>" + now + "</time>");
+        assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
+        assertFalse(documentResponse.jsonPath().getBoolean("binaryDoc"));
+        readDocument(docPath);
+    }
+
+    @Test
+    public void createXmlWithPlusInName() {
+        final String docPath = "/db/fusion-studio-api-test-document-it+3.xml";
+        final long now = System.currentTimeMillis();
+        final ExtractableResponse<Response> documentResponse = createXml(docPath, "<time>" + now + "</time>");
+        assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
+        assertFalse(documentResponse.jsonPath().getBoolean("binaryDoc"));
+        readDocument(docPath);
+    }
+
+    @Test
+    public void createXmlWithUnicodeCharactersInName() {
+        final String docPath = "/db/وثيقة-فيوجن-ستوديو.xml-4";
+        final long now = System.currentTimeMillis();
+        final ExtractableResponse<Response> documentResponse = createXml(docPath, "<time >" + now + "</time>");
+        assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
+        assertFalse(documentResponse.jsonPath().getBoolean("binaryDoc"));
+        readDocument(docPath);
     }
 
     @Test
@@ -199,5 +231,19 @@ public class DocumentIT {
             assertThat().
                     body(matchesJsonSchemaInClasspath("document-schema.json")).
             extract();
+    }
+
+    private ExtractableResponse<Response> readDocument(final String path) {
+        return
+            given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                when().
+                get(getApiBaseUri() + "/explorer?uri=" + path).
+                then().
+                statusCode(SC_OK).
+                assertThat().
+                body(matchesJsonSchemaInClasspath("document-schema.json")).
+                body("uri", equalTo(path)).
+                extract();
     }
 }

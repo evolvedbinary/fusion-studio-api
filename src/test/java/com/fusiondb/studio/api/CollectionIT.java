@@ -41,6 +41,31 @@ public class CollectionIT {
         final String colPath = "/db/fusion-studio-api-test-document-it-col-1";
         final ExtractableResponse<Response> collectionResponse = createCollection(colPath);
         assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
+        readCollection(colPath);
+    }
+
+    @Test
+    public void createCollectionWithSpaceInName() {
+        final String colPath = "/db/fusion-studio-api-test-document-it-col 2";
+        final ExtractableResponse<Response> collectionResponse = createCollection(colPath);
+        assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
+        readCollection(colPath);
+    }
+
+    @Test
+    public void createCollectionWithPlusInName() {
+        final String colPath = "/db/fusion-studio-api-test-document-it-col+3";
+        final ExtractableResponse<Response> collectionResponse = createCollection(colPath);
+        assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
+        readCollection(colPath);
+    }
+
+    @Test
+    public void createCollectionWithUnicodeCharactersInName() {
+        final String colPath = "/db/مجموعة-فيوجن-ستوديو";
+        final ExtractableResponse<Response> collectionResponse = createCollection(colPath);
+        assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
+        readCollection(colPath);
     }
 
     @Test
@@ -196,14 +221,28 @@ public class CollectionIT {
 
     private ExtractableResponse<Response> createCollection(final String path) {
         return
-            given().
-                    auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
-            when().
-                    put(getApiBaseUri() + "/collection?uri=" + path).
-            then().
-                    statusCode(SC_CREATED).
-            assertThat().
-                    body(matchesJsonSchemaInClasspath("collection-schema.json")).
-            extract();
+                given().
+                        auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                        when().
+                        put(getApiBaseUri() + "/collection?uri=" + path).
+                        then().
+                        statusCode(SC_CREATED).
+                        assertThat().
+                        body(matchesJsonSchemaInClasspath("collection-schema.json")).
+                        extract();
+    }
+
+    private ExtractableResponse<Response> readCollection(final String path) {
+        return
+                given().
+                        auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                        when().
+                        get(getApiBaseUri() + "/explorer?uri=" + path).
+                        then().
+                        statusCode(SC_OK).
+                        assertThat().
+                        body(matchesJsonSchemaInClasspath("collection-schema.json")).
+                        body("uri", equalTo(path)).
+                        extract();
     }
 }
