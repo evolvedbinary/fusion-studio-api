@@ -17,6 +17,7 @@
  */
 package com.fusiondb.studio.api;
 
+import io.restassured.http.Header;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Assumptions;
@@ -27,12 +28,14 @@ import java.util.Map;
 import static com.evolvedbinary.j8fu.tuple.Tuple.Tuple;
 import static com.fusiondb.studio.api.API.*;
 import static io.restassured.RestAssured.given;
+import static io.restassured.RestAssured.when;
 import static io.restassured.http.ContentType.JSON;
 import static io.restassured.http.ContentType.XML;
 import static io.restassured.internal.RestAssuredResponseOptionsGroovyImpl.BINARY;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.apache.http.HttpStatus.*;
+import static org.hamcrest.core.IsEqual.equalTo;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class DocumentIT {
@@ -44,6 +47,37 @@ public class DocumentIT {
         final ExtractableResponse<Response> documentResponse = createXml(docPath, "<time>" + now + "</time>");
         assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
         assertFalse(documentResponse.jsonPath().getBoolean("binaryDoc"));
+        readDocument(docPath);
+    }
+
+    @Test
+    public void createXmlWithSpaceInName() {
+        final String docPath = "/db/fusion-studio-api-test-document-it 2.xml";
+        final long now = System.currentTimeMillis();
+        final ExtractableResponse<Response> documentResponse = createXml(docPath, "<time>" + now + "</time>");
+        assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
+        assertFalse(documentResponse.jsonPath().getBoolean("binaryDoc"));
+        readDocument(docPath);
+    }
+
+    @Test
+    public void createXmlWithPlusInName() {
+        final String docPath = "/db/fusion-studio-api-test-document-it+3.xml";
+        final long now = System.currentTimeMillis();
+        final ExtractableResponse<Response> documentResponse = createXml(docPath, "<time>" + now + "</time>");
+        assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
+        assertFalse(documentResponse.jsonPath().getBoolean("binaryDoc"));
+        readDocument(docPath);
+    }
+
+    @Test
+    public void createXmlWithUnicodeCharactersInName() {
+        final String docPath = "/db/وثيقة-فيوجن-ستوديو.xml-4";
+        final long now = System.currentTimeMillis();
+        final ExtractableResponse<Response> documentResponse = createXml(docPath, "<time >" + now + "</time>");
+        assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
+        assertFalse(documentResponse.jsonPath().getBoolean("binaryDoc"));
+        readDocument(docPath);
     }
 
     @Test
@@ -53,6 +87,31 @@ public class DocumentIT {
         final ExtractableResponse<Response> documentResponse = createBinary(docPath, BINARY, Long.toString(now).getBytes(UTF_8));
         assertEquals(docPath, documentResponse.jsonPath().getString("uri"));
         assertTrue(documentResponse.jsonPath().getBoolean("binaryDoc"));
+    }
+
+    @Test
+    public void deleteDocument() {
+        final String documentPath = "/db/fusion-studio-api-test-document-it-col-6";
+
+        // 1. create a document
+        final long now = System.currentTimeMillis();
+        ExtractableResponse<Response> collectionResponse = createXml(documentPath, "<time>" + now + "</time>");
+        assertEquals(documentPath, collectionResponse.jsonPath().getString("uri"));
+
+        // 2. delete the document
+        given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                header(new Header("x-fs-move-source", documentPath)).
+        when().
+                delete(getApiBaseUri() + "/document?uri=" + documentPath).
+        then().
+                statusCode(SC_NO_CONTENT);
+
+        // 3. check the document no longer exists
+        when().
+                get(getApiBaseUri() + "/explorer?uri=" + documentPath).
+        then().
+                statusCode(SC_FORBIDDEN);  //TODO(AR) should this be SC_NOT_FOUND?
     }
 
     @Test
@@ -199,5 +258,19 @@ public class DocumentIT {
             assertThat().
                     body(matchesJsonSchemaInClasspath("document-schema.json")).
             extract();
+    }
+
+    private ExtractableResponse<Response> readDocument(final String path) {
+        return
+            given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                when().
+                get(getApiBaseUri() + "/explorer?uri=" + path).
+                then().
+                statusCode(SC_OK).
+                assertThat().
+                body(matchesJsonSchemaInClasspath("document-schema.json")).
+                body("uri", equalTo(path)).
+                extract();
     }
 }

@@ -41,6 +41,31 @@ public class CollectionIT {
         final String colPath = "/db/fusion-studio-api-test-document-it-col-1";
         final ExtractableResponse<Response> collectionResponse = createCollection(colPath);
         assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
+        readCollection(colPath);
+    }
+
+    @Test
+    public void createCollectionWithSpaceInName() {
+        final String colPath = "/db/fusion-studio-api-test-document-it-col 2";
+        final ExtractableResponse<Response> collectionResponse = createCollection(colPath);
+        assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
+        readCollection(colPath);
+    }
+
+    @Test
+    public void createCollectionWithPlusInName() {
+        final String colPath = "/db/fusion-studio-api-test-document-it-col+3";
+        final ExtractableResponse<Response> collectionResponse = createCollection(colPath);
+        assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
+        readCollection(colPath);
+    }
+
+    @Test
+    public void createCollectionWithUnicodeCharactersInName() {
+        final String colPath = "/db/مجموعة-فيوجن-ستوديو";
+        final ExtractableResponse<Response> collectionResponse = createCollection(colPath);
+        assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
+        readCollection(colPath);
     }
 
     @Test
@@ -194,16 +219,54 @@ public class CollectionIT {
                 body(matchesJsonSchemaInClasspath("collection-schema.json"));
     }
 
+    @Test
+    public void deleteCollection() {
+        final String collectionPath = "/db/fusion-studio-api-test-document-it-col-6";
+
+        // 1. create a collection
+        ExtractableResponse<Response> collectionResponse = createCollection(collectionPath);
+        assertEquals(collectionPath, collectionResponse.jsonPath().getString("uri"));
+
+        // 2. delete the collection
+        given().
+                auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                header(new Header("x-fs-move-source", collectionPath)).
+        when().
+                delete(getApiBaseUri() + "/collection?uri=" + collectionPath).
+        then().
+                statusCode(SC_NO_CONTENT);
+
+        // 3. check the collection no longer exists
+        when().
+                get(getApiBaseUri() + "/explorer?uri=" + collectionPath).
+        then().
+                statusCode(SC_FORBIDDEN);  //TODO(AR) should this be SC_NOT_FOUND?
+    }
+
     private ExtractableResponse<Response> createCollection(final String path) {
         return
-            given().
-                    auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
-            when().
-                    put(getApiBaseUri() + "/collection?uri=" + path).
-            then().
-                    statusCode(SC_CREATED).
-            assertThat().
-                    body(matchesJsonSchemaInClasspath("collection-schema.json")).
-            extract();
+                given().
+                        auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                        when().
+                        put(getApiBaseUri() + "/collection?uri=" + path).
+                        then().
+                        statusCode(SC_CREATED).
+                        assertThat().
+                        body(matchesJsonSchemaInClasspath("collection-schema.json")).
+                        extract();
+    }
+
+    private ExtractableResponse<Response> readCollection(final String path) {
+        return
+                given().
+                        auth().preemptive().basic(DEFAULT_ADMIN_USERNAME, DEFAULT_ADMIN_PASSWORD).
+                        when().
+                        get(getApiBaseUri() + "/explorer?uri=" + path).
+                        then().
+                        statusCode(SC_OK).
+                        assertThat().
+                        body(matchesJsonSchemaInClasspath("collection-schema.json")).
+                        body("uri", equalTo(path)).
+                        extract();
     }
 }
