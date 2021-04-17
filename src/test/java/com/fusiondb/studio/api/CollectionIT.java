@@ -20,6 +20,7 @@ package com.fusiondb.studio.api;
 import io.restassured.http.Header;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -44,6 +45,7 @@ public class CollectionIT {
         readCollection(colPath);
     }
 
+    @Disabled("not yet implemented see issue 50")
     @Test
     public void createCollectionWithSpaceInName() {
         final String colPath = "/db/fusion-studio-api-test-document-it-col 2";
@@ -51,7 +53,8 @@ public class CollectionIT {
         assertEquals(colPath, collectionResponse.jsonPath().getString("uri"));
         readCollection(colPath);
     }
-
+    
+    @Disabled("not yet implemented see issue 50")
     @Test
     public void createCollectionWithPlusInName() {
         final String colPath = "/db/fusion-studio-api-test-document-it-col+3";
@@ -60,6 +63,7 @@ public class CollectionIT {
         readCollection(colPath);
     }
 
+    @Disabled("not yet implemented see issue 50")
     @Test
     public void createCollectionWithUnicodeCharactersInName() {
         final String colPath = "/db/مجموعة-فيوجن-ستوديو";
