@@ -22,6 +22,8 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Disabled;
+
 
 import java.util.Map;
 
@@ -50,6 +52,7 @@ public class DocumentIT {
         readDocument(docPath);
     }
 
+    @Disabled("not yet implemented see issue 50")
     @Test
     public void createXmlWithSpaceInName() {
         final String docPath = "/db/fusion-studio-api-test-document-it 2.xml";
@@ -60,6 +63,7 @@ public class DocumentIT {
         readDocument(docPath);
     }
 
+    @Disabled("not yet implemented see issue 50")
     @Test
     public void createXmlWithPlusInName() {
         final String docPath = "/db/fusion-studio-api-test-document-it+3.xml";
@@ -70,6 +74,7 @@ public class DocumentIT {
         readDocument(docPath);
     }
 
+    @Disabled("not yet implemented see issue 50")
     @Test
     public void createXmlWithUnicodeCharactersInName() {
         final String docPath = "/db/وثيقة-فيوجن-ستوديو.xml-4";
