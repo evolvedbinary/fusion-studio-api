@@ -19,20 +19,43 @@ package com.fusiondb.studio.api;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static com.fusiondb.studio.api.API.getApiBaseUri;
 import static io.restassured.RestAssured.when;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchemaInClasspath;
 import static org.apache.http.HttpStatus.SC_OK;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class VersionIT {
 
     @Test
-    public void getServerVersion() {
+    public void getVersion() {
         when().
                 get(getApiBaseUri() + "/version").
         then().
                 statusCode(SC_OK).
         assertThat().
                 body(matchesJsonSchemaInClasspath("version-schema.json"));
+    }
+
+    @Test
+    public void existCompatibleVersionIsNotNull() {
+        final Object existDbJson = when().
+                get(getApiBaseUri() + "/version").
+                then().
+                statusCode(SC_OK).
+                assertThat().
+                body(matchesJsonSchemaInClasspath("version-schema.json"))
+                .extract()
+                .jsonPath().get("server.exist-db");
+        assertNotNull(existDbJson);
+        assertTrue(existDbJson instanceof Map);
+
+        final Map<String, Object> map = (Map<String, Object>) existDbJson;
+        if (map.containsKey("compatible-version")) {
+            assertNotNull(map.get("compatible-version"));
+        }
     }
 }
