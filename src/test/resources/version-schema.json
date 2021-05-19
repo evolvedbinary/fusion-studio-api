@@ -6,12 +6,13 @@
   "properties" : {
     "version": {
       "type": "string",
-      "description": "version string",
+      "description": "Version string",
       "example": "1.2.3"
     },
     "server": {
       "type": "object",
-      "description": "server version",
+      "description": "Server version",
+      "required" : [ "version" ],
       "properties": {
         "product-name": {
           "type": "string"
@@ -25,6 +26,16 @@
         },
         "build": {
           "type": "string"
+        },
+        "exist-db": {
+          "type": "object",
+          "description": "eXist-db compatibility",
+          "properties": {
+            "compatible-version": {
+              "type": "string",
+              "example": "1.2.3"
+            }
+          }
         }
       }
     }

@@ -64,7 +64,8 @@ function api:version() {
                 "revision": system:get-revision(),
                 "build": system:get-build(),
                 "exist-db": map {
-                    "compatible-version": util:system-property("exist-db-compatible-version")
+                    (: if there is no exist-db-compatible-version (i.e. eXist-db server), then use the system version :)
+                    "compatible-version": (util:system-property("exist-db-compatible-version"), system:get-version())[1]
                 }
             }
         }
