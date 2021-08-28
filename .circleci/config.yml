@@ -25,7 +25,9 @@ workflows:
                 - 'verify -B -q -Ddocker.username=$FDB_NIGHTLY_DOCKER_USER -Ddocker.password=$FDB_NIGHTLY_DOCKER_PASS'
                 # - 'verify -B -q -Ddocker.username=$FDB_DOCKER_USER -Ddocker.password=$FDB_DOCKER_PASS -Ddocker.db.image=repo.evolvedbinary.com:9443/evolvedbinary/fusiondb-server:latest'
           executor: 'xenial'    
-          context: FusionDB_images
+          context:
+            - FusionStudio
+            - FusionDB_images
           test_results_path: target/failsafe-reports
    
 
