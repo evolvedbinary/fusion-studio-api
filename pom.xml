@@ -48,7 +48,7 @@
         <project.build.source>1.8</project.build.source>
         <project.build.target>1.8</project.build.target>
 
-        <rest-assured.version>4.4.0</rest-assured.version>
+        <rest-assured.version>5.0.0</rest-assured.version>
 
         <!-- default supported exist-db version -->
         <exist.version>5.0.0</exist.version>
