@@ -24,6 +24,10 @@ import java.util.function.Function;
 
 import com.evolvedbinary.j8fu.tuple.Tuple2;
 
+import static com.evolvedbinary.j8fu.tuple.Tuple.Tuple;
+import static io.restassured.RestAssured.given;
+import static org.apache.http.HttpStatus.SC_OK;
+
 public class API {
 
     /**
@@ -220,23 +224,42 @@ public class API {
         return arrayOfMaps;
     }
 
-    static boolean testServerHasBadJsonSerialization() {
-        final String dockerTestImage = sysPropOrEnvVarOrDefault(SYS_PROP_NAME_DOCKER_DB_IMAGE, ENV_VAR_DOCKER_DB_IMAGE, null, envVarValue -> envVarValue);
-        if (dockerTestImage == null || dockerTestImage.isEmpty()) {
-            return false;
-        }
+    static Tuple2<String, String> getServerVersion() {
+        final String productName =
+            given().
+                    accept("text/text").
+            when().
+                        get(getRestApiBaseUri() + "/db?_query=system:get-product-name()&_wrap=no").
+            then().
+                    statusCode(SC_OK).
+            extract().body().asString();
 
-        return dockerTestImage.endsWith("fusiondb-server:1.0.0-ALPHA2")
-                || dockerTestImage.endsWith("existdb:5.0.0")
-                || dockerTestImage.endsWith("existdb:5.2.0");
+        final String version =
+                given().
+                        accept("text/text").
+                when().
+                        get(getRestApiBaseUri() + "/db?_query=system:get-version()&_wrap=no").
+                then().
+                        statusCode(SC_OK).
+                extract().body().asString();
+
+        return Tuple(productName, version);
+    }
+
+    static boolean testServerHasBadJsonSerialization() {
+        final Tuple2<String, String> serverVersion = getServerVersion();
+        return serverVersion.equals(Tuple("FusionDB", "1.0.0-ALPHA2"))
+                || serverVersion.equals(Tuple("eXist-db", "5.0.0"))
+                || serverVersion.equals(Tuple("eXist-db", "5.2.0"));
     }
 
     static boolean testServerHasBadXmldbSetMimeType() {
-        final String dockerTestImage = sysPropOrEnvVarOrDefault(SYS_PROP_NAME_DOCKER_DB_IMAGE, ENV_VAR_DOCKER_DB_IMAGE, null, envVarValue -> envVarValue);
-        if (dockerTestImage == null || dockerTestImage.isEmpty()) {
-            return false;
-        }
+        final Tuple2<String, String> serverVersion = getServerVersion();
+        return serverVersion.equals(Tuple("FusionDB", "1.0.0-ALPHA2"));
+    }
 
-        return dockerTestImage.endsWith("fusiondb-server:1.0.0-ALPHA2");
+    static boolean testServerHasBadCopyMoveCollectionOperations() {
+        final Tuple2<String, String> serverVersion = getServerVersion();
+        return serverVersion.equals(Tuple("FusionDB", "1.0.0-ALPHA3"));
     }
 }

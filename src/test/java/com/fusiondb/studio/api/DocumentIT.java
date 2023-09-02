@@ -198,7 +198,7 @@ public class DocumentIT {
 
     @Test
     public void updateMediaType() {
-        Assumptions.assumeFalse(testServerHasBadXmldbSetMimeType());
+        Assumptions.assumeFalse(testServerHasBadXmldbSetMimeType(), "Server has bad XML:DB setMimetype");
 
         final String docPath = "/db/fusion-studio-api-test-document-it-5.xml";
 
